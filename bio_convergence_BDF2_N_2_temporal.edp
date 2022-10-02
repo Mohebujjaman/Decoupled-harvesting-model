@@ -1,0 +1,225 @@
+load "Element_P3";
+verbosity=0;
+real cpu=clock();
+real t;
+real mu1=0.001;
+real mu2=0.0006;
+real d1=1.0;
+real d2=1.0;
+
+int J=2;
+
+  func r=(1.5+sin(x)*sin(y))*(1.2+sin(t));
+  func CarryingCapacity=(2.1+cos(pi*x)*cos(pi*y))*(1.1+cos(t));
+  func u10=(1.1+sin(t))*(2.0+sin(y));
+  func u20=(2.0+cos(t))*(1.1+cos(x));
+
+  func u1true=(1.1+sin(t))*(2.0+sin(y));
+  func u2true=(2.0+cos(t))*(1.1+cos(x));
+
+  func u1truex=0;
+  func u1truey=(1.1+sin(t))*cos(y);
+
+  func u2truex=-(2.0+cos(t))*sin(x);
+  func u2truey=0;
+
+
+  func f1=cos(t)*(2.0+sin(y))+d1*(1.1+sin(t))*sin(y)-r*u1true*(1-mu1-(u1true+u2true)/CarryingCapacity);
+  func f2=-sin(t)*(1.1+cos(x))+d2*(2.0+cos(t))*cos(x)-r*u2true*(1-mu2-(u1true+u2true)/CarryingCapacity);
+
+
+
+
+real [int] L2H1erroru1(10);
+real [int] L2H1erroru2(10);
+
+for (int i=0;i<10;i++){
+   L2H1erroru1(i)=0.0;
+   L2H1erroru2(i)=0.0;
+}
+
+for (int i=0;i<6;i++){
+
+  real time=0.0;
+  real H1erroru1=0.0;
+  real H2erroru2=0.0;
+  real timeStepErroru1=0.0;
+  real timeStepErroru2=0.0;
+
+ // mesh th= square(2^(i+2),2^(i+2));
+  mesh th= square(64,64);
+  fespace Vh(th,P2);
+
+  Vh un1,un2,un3,unn1,unn2;
+  Vh u1,u2,v,w;
+  Vh presentSolu1, presentSolu2;
+  //int nbiter = 8;
+   int nbiter = 2^(i+2);
+  real dt = 1/real(nbiter);
+  int iter=0;
+
+  cout << " The dof for velocity=" <<v.n <<endl;
+  cout << " The dof for magnetic field=" << w.n <<endl;
+
+
+  problem BERDE1 (u1,v,solver=UMFPACK) =
+
+    int2d(th)(
+     // 1.0/dt (u_h^{n+1},v_h^{n+1})
+
+           1.0/dt * ( u1*v)
+
+
+     // +(grad u_h^{n+1},grad v_h^{n+1})
+
+       + d1*( dx(u1)*dx(v) + dy(u1)*dy(v))
+       + r*mu1*u1*v
+       - r*u1*v*(1-(un1+un2)/CarryingCapacity)
+         )
+    + int2d(th)(
+     // -1/dt (u_h^n,v_h^{n+1})
+      - 1.0/dt*(un1*v)
+      -f1*v)
+    + on(1,2,3,4, u1 = u1true);
+
+
+  problem BERDE2 (u2,w,solver=UMFPACK) =
+
+    int2d(th)(
+     // 1.0/dt (u_h^{n+1},v_h^{n+1})
+
+           1.0/dt * ( u2*w)
+
+
+     // +(grad u_h^{n+1},grad v_h^{n+1})
+
+       + d2*( dx(u2)*dx(w) + dy(u2)*dy(w))
+       + r*mu2*u2*w
+       - r*u2*w*(1-(un1+un2)/CarryingCapacity)
+         )
+    + int2d(th)(
+     // -1/dt (u_h^n,v_h^{n+1})
+      - 1/dt*(un2*w)
+      -f2*w)
+    + on(1,2,3,4, u2 = u2true);
+
+  
+  problem BDF2RDE1 (u1,v,solver=UMFPACK) =
+
+    int2d(th)(
+     // 1.5/dt (u_h^{n+1},v_h^{n+1})
+
+           1.5/dt * ( u1*v)
+
+     // +(grad u_h^{n+1},grad v_h^{n+1})
+
+       + d1*( dx(u1)*dx(v) + dy(u1)*dy(v))
+       + r*mu1*u1*v
+       - r*u1*v*(1-(2*un1+2*un2-unn1-unn2)/CarryingCapacity)
+         )
+      + int2d(th)(
+     // -2/dt (u_h^n,v_h^{n+1})
+      - 2.0/dt*(un1*v)
+     //+0.5/dt (u_h^{n-1},v_h^{n+1})
+       +0.5/dt*(unn1*v)
+      -f1*v)
+    + on(1,2,3,4, u1 = u1true);
+
+
+  problem BDF2RDE2 (u2,w,solver=UMFPACK) =
+
+    int2d(th)(
+     // 1.5/dt (u_h^{n+1},v_h^{n+1})
+
+           1.5/dt * ( u2*w)
+
+     // +(grad u_h^{n+1},grad v_h^{n+1})
+
+       + d2*( dx(u2)*dx(w) + dy(u2)*dy(w))
+       + r*mu2*u2*w
+       - r*u2*w*(1-(2*un1+2*un2-unn1-unn2)/CarryingCapacity)
+         )
+    + int2d(th)(
+     // -2/dt (u_h^n,v_h^{n+1})
+      - 2.0/dt*(un2*w)
+
+     //+0.5/dt (u2_h^{n-1},v_h^{n+1})
+       +0.5/dt *(unn2*w)
+
+      -f2*w)
+    + on(1,2,3,4, u2 = u2true);
+
+
+  // Initializing at time t=0.0
+ 
+  t=0;
+
+cout<<"u10="<<u10<<endl;
+
+  un1=u10;
+  un2=u20;
+
+
+  iter = 1;
+  t = dt*iter;
+  time = t;
+
+BERDE1;
+BERDE2;
+
+unn1=un1;
+unn2=un2;
+
+un1=u1;
+un2=u2;
+
+
+for (iter = 2; iter <= nbiter; iter++) {
+  
+   t = dt*iter;
+   time = t;
+
+   presentSolu1 = 2* un1 - unn1;
+   presentSolu2 = 2* un2 - unn2;
+
+   timeStepErroru1=int2d(th)((u1truex-dx(presentSolu1))^2+(u1truey-dy(presentSolu1))^2);
+   timeStepErroru2=int2d(th)((u2truex-dx(presentSolu2))^2+(u2truey-dy(presentSolu2))^2);
+
+   H1erroru1= H1erroru1+timeStepErroru1;
+   H2erroru2= H2erroru2+timeStepErroru2;
+
+   cout<<"iter = "<<iter <<"    "<<timeStepErroru1<<"   "<<timeStepErroru2<<endl;
+
+   L2H1erroru1(i)=sqrt(dt*H1erroru1);
+   L2H1erroru2(i)=sqrt(dt*H2erroru2);
+
+
+
+  cout<<"i="<<i<<"  H1erroru1 = "<<L2H1erroru1(i)<<"   "<<"H2erroru2=" <<L2H1erroru2(i)<<endl;
+
+   BDF2RDE1;
+   BDF2RDE2;
+
+   unn1=un1;
+   unn2=un2;
+
+   un1=u1;
+   un2=u2;
+
+
+}
+}
+
+for (int i=0;i<5;i++)
+  cout<<L2H1erroru1(i)<<"    "<<L2H1erroru2(i)<<endl;
+
+cout<<"Convergence rate for u1"<<endl;
+for (int i = 0; i < 4; i++){
+  cout<<" convergence rate = "<<log(L2H1erroru1(i)/L2H1erroru1(i+1))/log(2.)<<endl;
+}
+
+cout<<"Convergence rate for u2"<<endl;
+for (int i = 0; i < 4; i++){
+  cout<<" convergence rate = "<<log(L2H1erroru2(i)/L2H1erroru2(i+1))/log(2.)<<endl;
+}
+
