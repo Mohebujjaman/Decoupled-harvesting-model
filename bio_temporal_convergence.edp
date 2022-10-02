@@ -1,0 +1,205 @@
+load "Element_P3";
+verbosity=0;
+real cpu=clock();
+real t;
+real mu=0.001;
+real nu=0.0006;
+real d1=1.0;
+real d2=1.0;
+
+real time=0.0;
+real energy1, energy2, energyk;
+real uval1, uval2, kval;
+
+real [int] L2H1Erroru1(8);
+real [int] L2H1Erroru2(8);
+
+for (int i=0;i<8;i++){
+   L2H1Erroru1(i) = 0.0;
+   L2H1Erroru2(i) = 0.0;
+}
+
+//border a1(t=0,4){x=t; y=0; label=1;}
+//border a2(t=0,4){x=4; y=t; label=2;}
+//border a3(t=0,4){x=4-t; y=4; label=3;}
+//border a4(t=0,4){x=0; y=4-t; label=4;}
+
+//mesh th = buildmesh( a1(15)+a2(15)+a3(15)+a4(15));
+
+//plot(th);
+
+for ( int k=0; k<6; k++){
+  
+  real H1erroru1=0; 
+  real H2erroru2=0;
+  real timeStepErroru1=0;
+  real timeStepErroru2=0;
+
+  mesh th= square(64,64);
+
+  fespace Vh2(th,P2);
+  fespace Vh(th,P1);
+
+  Vh2 u2,un1,un2, w;
+  Vh2 u1,v;
+
+  int nbiter = 2^(k+2);
+  real dt = 1/real(nbiter);
+  int iter=0;
+
+  cout << " The dof for velocity=" <<v.n <<endl;
+  cout << " The dof for magnetic field=" << w.n <<endl;
+
+  func r=(1.5+sin(x)*sin(y))*(1.2+sin(t));
+  func CarryingCapacity=(2.1+cos(pi*x)*cos(pi*y))*(1.1+cos(t));
+  func u10=(1.1+sin(t))*(2.0+sin(y));
+  func u20=(2.0+cos(t))*(1.1+cos(x));
+
+  func u1true=(1.1+sin(t))*(2.0+sin(y));
+  func u2true=(2.0+cos(t))*(1.1+cos(x));
+
+  func u1truex=0;
+  func u1truey=(1.1+sin(t))*cos(y);
+
+  func u2truex=-(2.0+cos(t))*sin(x);
+  func u2truey=0;
+
+  func f1=cos(t)*(2.0+sin(y))+d1*(1.1+sin(t))*sin(y)-r*u1true*(1-mu-(u1true+u2true)/CarryingCapacity);
+  func f2=-sin(t)*(1.1+cos(x))+d2*(2.0+cos(t))*cos(x)-r*u2true*(1-nu-(u1true+u2true)/CarryingCapacity);
+  ofstream data("RDE-energy-mu-0-0-nu-0-0006");
+
+  int mm=101;
+   real incr1=10.0/(mm-1.0);
+   real incr2=10.0/(mm-1.0);
+
+   real[int] xvec(mm);
+   real[int] yvec(mm);
+
+   for (int i = 0; i < mm ; ++i){
+       xvec[i]= 0.0 + incr1*i;
+       yvec[i]= 0.0 + incr2*i;
+      }
+
+  //cout<<xvec<<endl;
+
+  problem BERDE1 (u1,v,solver=UMFPACK) =
+
+    int2d(th)(
+     // 1.0/dt (u_h^{n+1},v_h^{n+1})
+
+           1.0/dt * ( u1*v)
+
+     // +(grad u_h^{n+1},grad v_h^{n+1})
+
+       + d1*( dx(u1)*dx(v) + dy(u1)*dy(v))
+       + r*mu*u1*v
+       - r*u1*v*(1-(un1+un2)/CarryingCapacity)
+         )
+    + int2d(th)(
+     // -1/dt (u_h^n,v_h^{n+1})
+      - 1/dt*(un1*v)
+      -f1*v)
+    + on(1,2,3,4, u1 = u1true);
+
+
+   problem BERDE2 (u2,w,solver=UMFPACK) =
+
+    int2d(th)(
+     // 1.0/dt (u_h^{n+1},v_h^{n+1})
+
+           1.0/dt * ( u2*w)
+
+     // +(grad u_h^{n+1},grad v_h^{n+1})
+
+       + d2*( dx(u2)*dx(w) + dy(u2)*dy(w))
+       + r*nu*u2*w
+       - r*u2*w*(1-(un1+un2)/CarryingCapacity)
+         )
+    + int2d(th)(
+     // -1/dt (u_h^n,v_h^{n+1})
+      - 1/dt*(un2*w)
+      -f2*w)
+    + on(1,2,3,4, u2 = u2true);
+
+
+  // Initializing at time t=0.0
+ 
+  t=0;
+
+  un1=u10;
+  un2=u20;
+
+  energy1=0.5*int2d(th)(un1*un1);
+  energy2=0.5*int2d(th)(un2*un2);
+  energyk=0.5*int2d(th)(CarryingCapacity*CarryingCapacity);
+
+  data << t<<"    "<<energyk<<" "<<energy1<<"  "<<energy2<<endl;
+
+  for (iter = 1; iter <= nbiter; iter++) {
+  
+
+      t = dt*iter;
+      time = t;
+
+      BERDE1;
+      BERDE2;
+   
+      un1=u1;
+      un2=u2;
+
+
+      energy1=0.5*int2d(th)(u1*u1);
+      energy2=0.5*int2d(th)(u2*u2);
+      energyk=0.5*int2d(th)(CarryingCapacity*CarryingCapacity);
+
+      timeStepErroru1=int2d(th)((u1truex-dx(u1))^2+(u1truey-dy(u1))^2);
+      timeStepErroru2=int2d(th)((u2truex-dx(u2))^2+(u2truey-dy(u2))^2);
+
+      H1erroru1= H1erroru1+timeStepErroru1;
+      H2erroru2= H2erroru2+timeStepErroru2;
+
+
+   //data << t<<"    "<<energyk<<" "<<energy1<<"  "<<energy2<<"   "<<timeStepErroru1<<"   "<<timeStepErroru2<<endl;
+
+   //cout<<"Time = "<<t <<"   "<<energyk<<"  "<<energy1<<"  "<<energy2<<"   "<<timeStepErroru1<<"   "<<timeStepErroru2<<endl;
+   /*
+   if((iter/200)==(iter/200.)){
+         ofstream data("space_time_"+iter) ;
+
+         for (int ix = 0; ix < xvec.n ; ix++){
+           for (int iy = 0; iy < yvec.n ; iy++){
+                uval1 = u1(xvec[ix], yvec[iy]);
+                uval2 = u2(xvec[ix], yvec[iy]);
+                kval = k(xvec[ix], yvec[iy]);
+
+                data << xvec[ix]<< "   " << yvec[iy] << "  "<< uval1<< "   "<<uval2<<"   "<<kval<<endl;
+             }
+       }
+
+     }
+  */
+  }
+
+   L2H1Erroru1(k)=sqrt(dt*H1erroru1);
+   L2H1Erroru2(k)=sqrt(dt*H2erroru2);
+
+cout<<"H1erroru1 = "<<L2H1Erroru1(k)<<"   "<<"H2erroru2=" <<L2H1Erroru2(k)<<endl;
+}
+
+cout<<L2H1Erroru1(0)<<"    "<<L2H1Erroru2(0)<<endl;
+cout<<L2H1Erroru1(1)<<"    "<<L2H1Erroru2(1)<<endl;
+cout<<L2H1Erroru1(2)<<"    "<<L2H1Erroru2(2)<<endl;
+cout<<L2H1Erroru1(3)<<"    "<<L2H1Erroru2(3)<<endl;
+cout<<L2H1Erroru1(4)<<"    "<<L2H1Erroru2(4)<<endl;
+
+cout<<"Convergence rate for v"<<endl;
+for (int i = 0; i < 5; i++){
+  cout<<" convergence rate = "<<log(L2H1Erroru1(i)/L2H1Erroru1(i+1))/log(2.)<<endl;
+}
+cout<<"Convergence rate for w"<<endl;
+
+for (int i = 0; i < 5; i++){
+  cout<<" convergence rate = "<<log(L2H1Erroru2(i)/L2H1Erroru2(i+1))/log(2.)<<endl;
+}
+
+
