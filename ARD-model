@@ -1,0 +1,1399 @@
+%\documentclass[11pt]{report}
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,graphicx,float,epsf}
+\def\RR{\hbox{I\kern-.2em\hbox{R}}}
+\newcommand{\qed}{\hbox to 0pt{}\hfill$\rlap{$\sqcap$}\sqcup$ \vspace{3mm}}
+\numberwithin{equation}{section}
+\restylefloat{figure}
+\usepackage{graphicx} %%For loading graphic files
+%% Math Packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{ulem}
+\usepackage{amsmath}
+\usepackage{algorithm}%%%%%%%%%%%%%%%%%%For algorithm structure%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage[caption = false]{subfig}
+\usepackage{wrapfig}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{caption}
+\usepackage[margin=1cm]{caption}
+\usepackage{authblk}
+\newcommand{\jaman}[1]{{\color{blue}#1}}
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+%\usepackage{spconf}
+\usepackage{comment}
+\usepackage[utf8]{inputenc}
+\newtheorem{Def}{Definition}
+\newtheorem{Lemma}{Lemma}
+\newtheorem{Th}{Theorem}
+\newtheorem{Cor}{Corollary}
+\newtheorem{Prop}{Proposition}
+\newtheorem{Rem}{Remark}
+\newtheorem{Ex}{Example}
+\newtheorem{Conj}{Example}
+\newtheorem{assumption}{Assumption}
+\usepackage{graphicx}
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\cD}{\mathcal{D}}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\tikzstyle{rect} = [draw, rectangle, fill=blue!20, text width=6em, text centered, minimum height=2em]
+\tikzstyle{elli} = [draw, ellipse, fill=red!20, minimum height=2em]
+\tikzstyle{circ} = [draw, circle, fill=white!20, minimum width=8pt, inner sep=5pt]
+\tikzstyle{diam} = [draw, diamond, fill=white!20, text width=6em, text badly centered, inner sep=0pt]
+\tikzstyle{line} = [draw, -latex']
+%% Line Spacing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{a4wide} %%Smaller margins = more text per page.
+\usepackage{authblk} % for multiple authors affiliation
+\usepackage{soul}
+\setstcolor{red}
+\usepackage{varioref}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=violet, citecolor=cyan, urlcolor=teal} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\graphicspath{ {Images3/} }
+% Don't want date printed
+\date{}
+\begin{document}
+	
+	
+	
+	\title{Harvesting Effects in Reaction-Diffusion-Advection Model: Exploring Decoupled Algorithms and Analysis}
+	
+	\author[1]{\small Mayesha Sharmim Tisha\thanks{Email: mayeshasharmim-2015617107@math.du.ac.bd}}
+	\author[1]{\small Md Kamrujjaman\thanks{Corresponding author: Md Kamrujjaman, E-mail: kamrujjaman@du.ac.bd}}
+	\author[2]{\small  Muhammad Mohebujjaman\thanks{Email: mmohebuj@uab.edu}}%, \\ ORCID: \url{https://orcid.org/0000-0003-4278-7078}}} 	
+	\author[3]{\small Taufiquar Khan\thanks{Email: taufiquar.khan@uncc.edu} }
+	%	  \author[3,4]{\small Md. Mamun Molla \thanks{Email: mamun.molla@northsouth.edu}}
+	%	  \author[5]{\small Shi Chen \thanks{Email: schen56@uncc.edu }}
+	
+	\affil[1]{\footnotesize Department of Mathematics, University of Dhaka, Dhaka 1000, Bangladesh}
+	\affil[2]{\footnotesize 	Department of Mathematics, University of Alabama at Birmingham, Birmingham, AL 35294, USA}	
+	\affil[3]{\footnotesize Department of Mathematics and Statistics, University of North Carolina at Charlotte, Charlotte, North Carolina, USA}
+	%	  \affil[2]{\footnotesize Bangladesh Institute of Governance and Management, Dhaka, Bangladesh}
+	%	  \affil[3]{\footnotesize Department of Mathematics \& Physics, North South University, Dhaka 1229, Bangladesh}
+	%	  \affil[4]{\footnotesize Center for Applied Scientific Computing (CASC), North South University, Dhaka 1229, Bangladesh}
+	%	  \affil[5]{\footnotesize Department of Public Health Sciences,  University of North Carolina at Charlotte, Charlotte, North Carolina,  USA}
+	
+	\maketitle  
+	
+	\vspace{-1.0cm}
+	\noindent\rule{6.25in}{0.02in}\\
+	{\bf Abstract.} \jaman{We propose a time-dependent reaction-diffusion-advection $N$-species competition model to investigate the harvesting effect.} \textcolor{red}{Please add the summary of the continuous analysis, and outcomes.}
+	We propose, analyze and test two novel fully discrete decoupled linearized algorithms for a nonlinearly coupled reaction-diffusion-advection $N$-species competition model with harvesting or stocking effort. The time-stepping algorithms are first and second order accurate in time and optimally accurate in space. Stability and optimal convergence theorems of the decoupled schemes are proved rigorously. We verify the predicted convergence rates of our analysis and efficacy of the algorithms using numerical experiments and synthetic data for analytical test problems. We also study the effect of harvesting or stocking and diffusion parameters on the evolution of species population density numerically, and observe the co-existence scenario subject to optimal harvesting or stocking.\\
+	\noindent{\it \footnotesize Keywords}: {\small Competition; couple of species; simulation; RDA; advection.}\\
+	\noindent
+	\noindent{\it \footnotesize AMS Subject Classification 2020}: 92-10, 92C42, 92C60, 92D30, 92D45, 65M12, 65M22. \\
+	\noindent\rule{6.25in}{0.02in}
+	
+	
+	\section{Introduction} 
+	\jaman{Stocking and harvesting modeling and their strategies for interactions between species have a significant impact on population economics, in particular, on the productivity and profitability of farms \cite{clark1974mathematical,dai1998coexistence,li2011optimal,otunuga2021time,yang2019optimal,zhang2003optimal, schons2021rotatinuous, brissette1996effects, forsberg1996optimal, lorenzen2005population, shaner1996assessment}. Harvesting is a management strategy involving the reduction of the size of the species by hunting, fishing, or other forms of capture, and natural disasters. The release of cultured organisms into the environment to increase the number of wild species is known as stocking (or immigration).} 
+	
+	\jaman{In recent decades, numerous researchers have conducted investigations, mathematical modeling, and analyses of stocking and harvesting  effects  based on ordinary differential equations \cite{myerscough1992analysis, brauer1982coexistence,brauer1982constant, liu2007impulsive, hening2022effects, liu2010coexistence, dong2006extinction, jiao2008delayed, wang2014permanence, jiao2008permanence, ruan2023imperfect}, difference equations \cite{selgrade1998reversing, alsharawi2009coexistence, selgrade1998using}, delay-differential equations \cite{bibid}, and Partial Differential Equations (PDEs) \cite{braverman2009optimal, korobenko2013persistence,kamrujjaman2022spatio, adan2023interplay, mohebujjaman2024decoupled}.} 
+	
+	In \cite{korobenko2013persistence, braverman2016competitive, roques2007population}, there are few studies about harvesting of one or two populations, and \jaman{in practice, they often fail to illustrate the actual circumstances.} Additional intriguing situations that show either coexistence or competitive exclusion by others are discovered when harvesting is considered for two or more interacting population \cite{clayton1997bringing,leung1995optimal,liu2016optimal, stigter2004optimal}. A predator-prey system's total behavior is explored in \cite{brauer1982constant} under constant stocking or harvesting of one or both species.
+	
+	\jaman{PDEs Stocking and Harvesting (PDE-SH) modelings are complex but more realistic. Two species Reaction Diffusion PDE-SH (RD-PDE-SH) model is proposed, analyzed, and tested a fully discrete decoupled finite element scheme in \cite{adan2023interplay} without providing any numerical anaysis. $N-$species non-linearly coupled system of RD-PDE-SH model is presented in \cite{mohebujjaman2024decoupled} together with two fully discrete decoupled finite element algorithms are proposed, analyzed and tested.}
+	
+	   \textcolor{red}{Jaman says: Reaction-diffusion is okay, why advection is important to the population dynamics? please add explannation and citations. Please justify the validity of equation \eqref{RDE1}, in particular the advection term $\beta_i\nabla\cdot(u_i\nabla K)$. I would recomend, we will have three point strategies: (1) Present the advection-diffusion-model with explannation (2) Discussion about the continuous analysis (what was done, what we want to do for this new model, etc), and finally (3) Discussion about the numerical strategies (including proposal of of the two discrete scheme, their efficiencies, and implementation)}. 
+	   
+	   The \jaman{more realistic} constitutive equation of population dynamics, such as competition and prey-predator models, which \jaman{better} serves to explain the pattern and illustrate the impacts of harvesting \jaman{and stocking}, \jaman{can be represented in terms of Reaction Diffusion Advection (RDA) PDEs}.	\st{In a} \jaman{The RDA-PDEs-SH model} for $N$-species competition  \st{model with harvesting or stocking, which} is \st{controlled} \jaman{governed} by the following system of nonlinearly \jaman{coupled time} evolutionary equations\st{, we explore the most effective and accurate numerical approximation of population dynamics} \cite{adan2023interplay,braverman2019interplay, wong2009analysis}: For $i=1,2,\cdots,N$
+	%When harvesting is assumed for two or more interacting population dynamics, more fascinating scenarios are found \cite{clayton1997bringing,leung1995optimal,liu2016optimal, stigter2004optimal} that show either coexistence or competitive exclusion by others. Under constant harvesting or stocking of one or both species, a predator-prey system's overall behavior is examined in \cite{brauer1982constant}. The constitutive equation of population dynamics, such as competition and prey-predator models, is reaction-diffusion-advection, which helps to present the pattern and depict the impacts of harvesting.
+	%We consider the most efficient and accurate numerical approximation of the population dynamics in a reaction-diffusion-advection $N$-species competition model with harvesting or stocking, which is governed by the following system of nonlinear evolutionary equations \cite{adan2023interplay,braverman2019interplay, wong2009analysis}: For $i=1,2,\cdots,N$
+	\begin{align}
+\frac{\partial u_i}{\partial t}=\mathcal{D}_i\Delta u_i-\beta_i\nabla\cdot(u_i\nabla K)+r_iu_i\left(1-\gamma_i-\frac{1}{K}\sum\limits_{j=1}^N u_j\right)+f_i, \hspace{2mm}\forall (t, \bx)\in (0,T]\times\Omega,\label{RDE1}
+\end{align}
+along with known initial and boundary conditions, where $u_i$, $\mathcal{D}_i$, $\beta_i$, $r_i$, and $\gamma_i$ indicate the $i^{th}$ competing species' population density, diffusion rate, advection rate, intrinsic growth rate, and harvesting or stocking coefficient, respectively. The number of species in the competition is denoted by $N$; \jaman{Single species simple logistic growth model can be retrived for $N=1$.} $K$ represents the heterogeneous environment's carrying capacity, $f_i$ the forcing, $t$ the time, $\bx$ the spatial variable, $\Omega$ the domain, and $T$ the simulation end time. In the model \eqref{RDE1}, the \jaman{stocking and} harvesting rate is considered to be proportional to the intrinsic growth rate, and \st{the harvesting or stocking coefficient} $\gamma_i<1$. When $\gamma_i=1$, the growth function of the  $i^{th}$ species decreases \cite{bibid}.
+
+\textcolor{red}{Need to discuss about the continuous analysis of the above model here, that is before the discrete analysis.}
+
+\jaman{Solving the above system is computationally expensive, because we need to solve a system of non-linearly coupled RDA-PDEs at each time-step together with space- and time-dependent growth rate and carrying capacity. It is an open problem how to decouple the system \eqref{RDE1} in an stable way.}
+\st{The difficulty in modeling equation} \eqref{RDE1} \st{ is that we must solve a non-linearly coupled system of partial differential equations at each time step, where the intrinsic growth rates and carrying capacity are all space and time dependent.} \jaman{Finite element analysis of} a three-species competition-diffusion\st{-advection} model with constant intrinsic growth rate in a homogeneous environment ($K\equiv$ constant) without harvesting or stocking is \jaman{studied in} \st{provided by Wong in his 2009 analysis (see} \cite{wong2009analysis}.  Although only the first-order system in a finite element scenario was explored, and no numerical experiments were provided beyond the convergence rate verification, the author offered two decoupled time-stepping discrete schemes and their convergence rates. In \cite{adan2023interplay}, the optimal harvesting in regulating species density in a two-species competition model with a diverse habitat is examined using a fully-discrete backward-Euler decoupled time-stepping algorithm without any discrete algorithm analysis. In \cite{ainseba2008reaction}, a Lotka-Volterra interactions model with no-flux boundary conditions in the presence of prey-taxis and spatial diffusion is given, and the existence and uniqueness of the weak solution is examined. Kamrujjaman et al. investigated the spatial-temporal impacts of the logistic and Gilpin-Ayala growth functions with starving type diffusion in a single species population with stocking \cite{kamrujjaman2022spatio, Zahan2022Mathmatical}. They investigated the properties of species stability in terms of their survival and extinction. They also established the presence of optimal harvesting attempts in the situation of space-dependent carrying capacity. They presented their findings analytically and numerically. The main focus was on the analytical approach rather than claiming any robust numerical algorithm. The findings of this chapter are as follows:
+\begin{itemize}
+\item Examine two fully discrete, decoupled, and linearized time-stepping algorithms for approximating \eqref{RDE1} solutions.
+\begin{itemize}
+	\item  The first-order backward-Euler formula is used in Algorithm \ref{Algn2} to approximate the temporal derivative, and the immediately preceding time-step solution is used to linearize the non-linear component.
+	\item Algorithm \ref{Algn2} demonstrates the Decoupled Backward Difference Formula 2 (DBDF-2) scheme, which consists of a second-order correct time derivative approximation formula that linearizes the non-linear term by approximating the unknown solution at the previous time-step. 
+\end{itemize}
+\item Investigate the stability of  Decoupled Backward-Euler (DBE) method and  Decoupled Backward Difference Formula 2 (DBDF-2).
+\item Provide the convergence analysis of two methods that is estimate the errors of DBE and DBDF-2 method.
+\item Numerical simulation illustrates the effects of different parameters like diffusion, advection and harvesting.
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%together with known initial and boundary conditions where $u_i$, $\mathcal{D}_i$, $\beta_i$, $r_i$ and $\gamma_i$ represent the population density, diffusion rate, advection rate, intrinsic growth rate and harvesting or stocking coefficient of the $i^{th}$ competing species, respectively. $N$ denotes the number of species in the competition, if $N=1$, the model \eqref{RDE1} represents simple logistic growth model of a single species. Here, $K$ represents carrying capacity of the heterogeneous environment, $f_i$ the forcing, $t$ the time, ${\bf x}\in\Omega$ the spatial variable, $\Omega$ the domain, and $T$ the simulation end time. It is assumed  that the harvesting rate is proportional to the intrinsic growth rate in the model \eqref{RDE1}, and the harvesting or stocking coefficient $\gamma_i<1$. If $\gamma_i=1$, then the growth function of the $i^{th}$ species diminishes.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%The difficultly in simulating equation \eqref{RDE1} is that we need to solve a non-linearly coupled system of partial differential equations at each time-step, where the intrinsic growth rates and carrying capacity all depend on space and time. It is an open problem how to decouple the system in a stable way. A three-species competition-diffusion-advection model with constant intrinsic growth rate in a homogeneous environment ($K\equiv$ constant) without harvesting or stocking is given by Wong in \cite{wong2009analysis}. The author presented one first-order and another second-order decoupled time-stepping discrete schemes and their convergence rates however only the first-order scheme in a finite element setting was analyzed, and no numerical experiments were given beyond the convergence rate verification. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%The optimal harvesting in controlling species density in a two-species competition model with a heterogeneous environment is investigated in \cite{adan2023interplay}, where  a fully-discrete backward-Euler decoupled time-stepping algorithm is used without any analysis of the discrete algorithm. 
+%A Lotka–Volterra interactions model with no-flux boundary conditions in the presence of prey-taxis and spatial diffusion is given in \cite{ainseba2008reaction} and discussed the existence and uniqueness of the weak solution. Kamrujjaman et al. studied the spatial-temporal effects for logistic and Gilpin-Ayala growth function with starvation type diffusion for single species population with stocking \cite{kamrujjaman2022spatio, Zahan2022Mathmatical}. 
+%
+%They studied the stability properties for the existence and extinction of species. Also, in the case of space-dependent carrying capacity, they established the presence of optimal harvesting efforts. They presented their outcomes analytically and computationally. The main interest focused on the analytical approach instead of claiming any robust numerical algorithm.
+\iffalse
+\subsection*{Significance of the work}
+In this paper, we propose, analyze, and test two fully discrete and decoupled linearized stable time-stepping algorithms of a non-linearly coupled system of reaction-diffusion-advection equations that describes an $N$-species competition model in a heterogeneous environment with harvesting or stocking. We provide rigorous analysis of the existence and uniqueness of the solutions of the algorithms together with the priori error estimates by proving their stability and convergence theorems. We prove that the both algorithms are optimally accurate in time and space. The numerical tests are presented showing their convergence rates on some known analytical test problems varying number of species. The solution at each time-step can be computed simultaneously for each species in the competition, which can reduce a huge computational cost when compared to coupled non-linear algorithms. A series of numerical experiments are given that show the effect of exponentially varying carrying capacity, non-stationary intrinsic growth rates, varying diffusion parameters, and harvesting or stocking on the population density of the species in the competition.
+
+To the best of our knowledge, the proposed efficient fully-discrete algorithms of the $N$-species reaction-diffusion competition model in \eqref{RDE1} with harvesting or stocking have not been investigated to date. The proposed algorithms are expected to enable new tools for large-scale computing in population dynamics.
+
+The rest of the paper is organized as follows: In Section \ref{notation-preliminaries}, we present some necessary notation and preliminaries for a thorough analysis. We present two fully discrete decoupled schemes and analyze them in Section \ref{fully-discrete-schme}. In Section \ref{numerical-experiments}, we perform several numerical experiments to support the theoretical findings in Section \ref{fully-discrete-schme}. Finally, the conclusion and discussions of future research are given in Section \ref{conclusion}. 
+\fi
+\section{Notation and Preliminaries} \label{notation-preliminaries} Let $\Omega\subset\mathbb{R}^d (d\in\{1,2,3\})$ be a  convex domain with boundary $\partial\Omega$. For a given carrying capacity $K:(0,T]\times\Omega\rightarrow\mathbb{R}$, we define
+\begin{align}
+K_{\min}:=\inf\limits_{(t,{\bx})\in (0,T]\times\Omega}|K(t,\bx)|,\label{kmin-def}
+\end{align}
+and make the assumption that $K_{\min}>0$. The standard $L^2(\Omega)$ norm and inner product are denoted by $\|.\|$ and $(.,.)$. Similarly, the $L^p(\Omega)$ norms and the Sobolev $W_p^k(\Omega)$ norms for $k\in\mathbb{N},\hspace{1mm}1\le p\le \infty$ are $\|.\|_{L^p}$ and $\|.\|_{W_p^k}$, respectively. The Sobolev space $W_2^k(\Omega)^d$ is represented by Hilbert spaces $H^k(\Omega)^d$ with norm $\|.\|_k$.
+%    and assume $K_{\min}>0$. The usual $L^2(\Omega)$ norm and inner product are denoted by $\|.\|$ and $(.,.)$, respectively. Similarly, the $L^p(\Omega)$ norms and the Sobolev $W_p^k(\Omega)$ norms are $\|.\|_{L^p}$ and $\|.\|_{W_p^k}$, respectively for $k\in\mathbb{N},\hspace{1mm}1\le p\le \infty$. The Sobolev space $W_2^k(\Omega)^d$ is represented by $H^k(\Omega)^d$ with norm $\|.\|_k$ which are Hilbert spaces.
+For $X$ being a normed function space in $\Omega$, $L^p(0,T;X)$ is the space of all functions defined on $(0,T]\times\Omega$ for which the following norm 
+\begin{align*}
+\|u\|_{L^p(0,T;X)}=\left(\int_0^T\|u\|_{X}^pdt\right)^\frac{1}{p},\hspace{2mm}p\in[1,\infty)
+\end{align*}
+is finite. For $p=\infty$, the usual modification is used in the definition of this space. We denote $$\|u\|_{\infty,\infty}:=\|u\|_{L^\infty\big(0,T;L^\infty(\Omega)^d\big)}.$$ The natural function spaces for our problem are
+\begin{align*}
+X:&=H_0^1(\Omega)=\big\{v\in L^2(\Omega) :\nabla v\in L^2(\Omega)^{d},\hspace{1mm}  v=0 \hspace{1mm} \mbox{on}\hspace{1mm}   \partial \Omega\big\}.
+\end{align*}
+In the dual space of $X$ and for an element $f$ , we define the norm as
+$$\|f\|_{-1}:=\sup\limits_{v\in X}\frac{(f,v)}{\|\nabla v\|}.$$
+Recall the Poincar\'e inequality holds in $X$: There exists $C$ depending only on $\Omega$ satisfying for all $\phi\in X$,
+\[
+\| \phi \| \le C \| \nabla \phi \|.
+\]
+We define the initial conditions $u_i^0:=u_i(0,{\bx})$, and $u_i^1:=u_i(\Delta t,{\bx})$.
+We obtain the following by multiplying both sides of \eqref{RDE1} by $v\in X$ and integrating over $\Omega$: Regarding $i=1,2,\cdots,N$
+%\begin{align}
+%	\left(\frac{\partial u_i}{\partial t},v_i\right)&+d_i\left(\nabla u_i,\nabla v_i\right)-\gamma_i\left(u_i\nabla K,\nabla v_i\right)\nonumber\\&=(1-\beta_i)\big(r_i(t,\bf x)u_i,v_i\big)-\left(\frac{r_i(t,\bf x) u_i}{K(t,\bf x)}\sum\limits_{j=1}^Nu_j,v_i\right)+\left(f_i,v_i\right).\label{vec-weak-form}
+%\end{align}
+\begin{align}
+\left(\frac{\partial u_i}{\partial t},v\right)&+\mathcal{D}_i\left(\nabla u_i,\nabla v\right)-\beta_i\left(u_i\nabla K,\nabla v\right)\nonumber\\&=(1-\gamma_i)\big(r_i(t,{\bx})u_i,v\big)-
+\left(\frac{r_i(t,{\bx}) u_i}{K(t,{\bx})}\sum\limits_{j=1}^Nu_j,v\right)+\left(f_i,v\right).\label{vec-weak-form}
+\end{align}
+%\begin{align*}
+%	&\displaystyle\int_{\Omega}{\left(\frac{\partial u_i}{\partial t},v_i\right)}d\Omega=\displaystyle\int_{\Omega}{\mathcal{D}_i\left(\Delta u_i, v_i\right)-\beta_i\left(\nabla u_i, v_i\right)+\big(r_i(t,{\bf x})u_i,v_i\big)\big(1-\gamma_i-\frac{1}{K}\sum\limits_{j=1}^N u_j\big)}d\Omega\\
+%	&~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	+\displaystyle\int_{\Omega}{(f_i,v_i)}d\Omega\\
+%	&\Rightarrow\displaystyle\int_{\Omega}{\left(\frac{\partial u_i}{\partial t},v_i\right)}d\Omega=\mathcal{D}_i\{(v_i,\nabla u_i)-\displaystyle\int_{\Omega}{\left(\nabla u_i,\nabla v_i\right)}d\Omega\}-\beta_i\{(v_i, u_i)-\displaystyle\int_{\Omega}  \left(u_i,\nabla v_i\right)                \}d\Omega+\\
+%	&~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\displaystyle\int_{\Omega}{(1-\gamma_i)\big(r_i(t,{\bf x})u_i,v_i\big)}d\Omega-\displaystyle\int_{\Omega}{\left(\frac{r_i(t,{\bf x}) u_i}{K(t,{\bf x})}\sum\limits_{j=1}^Nu_j,v_i\right)}d\Omega+\\
+%	&~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\displaystyle\int_{\Omega}{\left(f_i,v_i\right)}d\Omega
+%\end{align*}
+%Applying homogeneous Neumann boundary conditions, we have the following continuous weak form: For $i=1,2,\cdots,N$
+%\begin{align}
+%	\left(\frac{\partial u_i}{\partial t},v_i\right)+\mathcal{D}_i\left(\nabla u_i,\nabla v_i\right)-\beta_i\left(u_i,\nabla v_i\right)=(1-\gamma_i)\big(r_i(t,{\bf x})u_i,v_i\big)-\\
+%	\left(\frac{r_i(t,{\bf x}) u_i}{K(t,{\bf x})}\sum\limits_{j=1}^Nu_j,v_i\right)+\left(f_i,v_i\right).\label{vec-weak-form}
+%\end{align}
+The complying finite element space is denoted by $X_h\subset X$, and the inverse inequality holds if the triangulation is sufficiently regular $\tau_h(\Omega)$, where $h$ is the maximum triangle diameter. We have the following approximation features in $X_h$ that are typical of piecewise polynomials of degree $k$: \cite{BS08,linke2019pressure}
+%The conforming finite element space is denoted by $X_h\subset X$, and we assume a sufficiently regular triangulation $\tau_h(\Omega)$ for the inverse inequality to hold, where $h$ is the maximum triangle diameter. We have the following approximation properties typical of piecewise polynomials of degree $k$ in $X_h$: \cite{BS08,linke2019pressure}
+\begin{align}
+\|u- P^{L^2}_{X_h}(u) \|&\leq Ch^{k+1}|u|_{k+1},\hspace{2mm}u\in H^{k+1}(\Omega),\label{AppPro3}\\
+\| \nabla (u- P^{L^2}_{X_h}(u)  ) \|&\leq Ch^{k}|u|_{k+1},\hspace{2mm}u\in H^{k+1}(\Omega),\label{AppPro4}
+\end{align}
+where $P^{L^2}_{X_h}(u)$ is the $L^2$ projection of $u$ into $X_h$ and $|\cdot|_r$ denotes the $H^r$ seminorm. Note that $C>0$ is a generic constant and changes in computation. The following lemma for the discrete Gr\"onwall inequality.
+\begin{Lemma}\label{dgl} Let $\mathbb{N}$ denote the set of all natural numbers and
+$\Delta t$, $\mathcal{E}$, $a_n$, $b_n$, $c_n$, $d_n$ be non-negative numbers for $n=1,\cdots\hspace{-0.35mm},M$ such that
+$$a_M+\Delta t \sum_{n=1}^Mb_n\leq \Delta t\sum_{n=1}^{M-1}{d_na_n}+\Delta t\sum_{n=1}^Mc_n+\mathcal{E}\hspace{3mm}\mbox{for}\hspace{2mm}M\in\mathbb{N},$$
+then for all $\Delta t> 0,$
+$$a_M+\Delta t\sum_{n=1}^Mb_n\leq \left(\Delta t\sum_{n=1}^Mc_n+\mathcal{E}\right)\mbox{exp}\left(\Delta t\sum_{n=1}^{M-1}d_n\right)\hspace{2mm}\mbox{for}\hspace{2mm}M\in\mathbb{N}.$$
+\end{Lemma}
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+Consider the following model for two species in the domain $(0,T]\times\Omega$ with homogeneous Neumann boundary conditions.
+\begin{align} 
+\label{harvest_system}
+\begin{cases}
+	\vspace{0.2cm}
+	&\displaystyle\frac{\partial u_1}{\partial t}=\mathcal{D}_1\Delta u_1-\beta_1\nabla\cdot(u_1\nabla K)+r_1u_1\left(1-\gamma_1-\frac{u_1+u_2}{K}\right), \hspace{2mm}\forall (t,{\bx})\in (0,T]\times\Omega,\\
+	\vspace{0.2cm}
+	&\displaystyle\frac{\partial u_2}{\partial t}=\mathcal{D}_2\Delta u_2-\beta_2\nabla\cdot(u_2\nabla K)+r_2u_2\left(1-\gamma_2-\frac{u_1+u_2}{K}\right), \hspace{2mm}\forall (t,{\bx})\in (0,T]\times\Omega,\\
+	\vspace{0.2cm}
+	&\mathcal{D}_1\nabla u_1-\beta_1u_1\nabla K=\mathcal{D}_2\nabla u_2-\beta_2u_2\nabla K=0,\ \displaystyle \bx\in\partial \Omega,\\
+	\vspace{0.2cm}
+	%		&\mathcal{D}_2\nabla u_2-\beta_2u_2\nabla K=0,\ \displaystyle x\in\partial \Omega\\
+	%		\vspace{0.2cm}
+	&	u_1(\bx,0)={{u_1}_0}(\bx)\geq,\not\equiv0,\ \displaystyle \bx\in \Omega,\\
+	\vspace{0.2cm}
+	&	u_2(\bx,0)={{u_2}_0}(\bx)\geq,\not\equiv0,\ \displaystyle \bx\in \Omega.
+\end{cases}
+\end{align}
+\section{Existence, Uniqueness and Positivity of Solution}\label{section_3}
+Consider the following model for single species in the domain $(0,T]\times\Omega$ with homogeneous Neumann boundary condition to establish the uniqueness result.
+\begin{align} 
+\label{harvest_system_decoupled}
+\begin{cases}
+	\vspace{0.2cm}
+	&\displaystyle\frac{\partial u_1}{\partial t}=\mathcal{D}_1\Delta u_1-\beta_1\nabla\cdot(u_1\nabla K)+r_1u_1\left(1-\gamma_1-\frac{u_1}{K}\right), \hspace{2mm}\forall (t,{\bx})\in (0,T]\times\Omega,\\
+	\vspace{0.2cm}
+	&\mathcal{D}_1\nabla u_1-\beta_1u_1\nabla K=0,\ \displaystyle \bx\in\partial \Omega,\\
+	\vspace{0.2cm}
+	&	u_1(\bx,0)={{u_1}_0}(\bx)\geq,\not\equiv0,\ \displaystyle \bx\in \Omega.
+\end{cases}
+\end{align}
+\begin{Lemma}
+\label{lm17}
+Let  $ {u_1}_0(\bx) \in \Omega, $ be the non-negative and non-trivial initial continuous function and $ {u_1}_0(\bx) > 0 $	in some non-empty open bounded sub-domain $ \Omega_1 \subset \Omega $. Then for any $ t > 0 $, there exists a unique solution $ u_1(t, \bx) $ of the problem \eqref{harvest_system_decoupled} and it is positive.
+\end{Lemma}
+\begin{proof}
+Let us assume
+$$\mathcal{F}(\bx,u_1)=\mathcal{G}(\bx,u_1)u_1=r_1u_1\left(1-\gamma_1-\frac{u_1}{K}\right),$$
+where
+$$\mathcal{G}(\bx,u_1)=r_1\left(1-\gamma_1-\frac{u_1}{K}\right).$$
+Then, the system \eqref{harvest_system_decoupled} becomes
+\begin{align} 
+	\label{harvest_system_decoupled2}
+	\begin{cases}
+		\vspace{0.2cm}
+		&\displaystyle\frac{\partial u_1}{\partial t}=\mathcal{D}_1\Delta u_1-\beta_1\nabla\cdot(u_1\nabla K)+\mathcal{G}u_1,\hspace{2mm}\forall (t,{\bx})\in (0,T]\times\Omega,\\
+		\vspace{0.2cm}
+		&\mathcal{D}_1\nabla u_1-\beta_1u_1\nabla K=0,\ \displaystyle \bx\in\partial \Omega,\\
+		\vspace{0.2cm}
+		&	u_1(\bx,0)={{u_1}_0}(\bx)\geq,\not\equiv0,\ \displaystyle \bx\in \Omega.
+	\end{cases}
+\end{align}
+Here, $\mathcal{F}(\bx,u_1)$ is Lipschitz in $u_1$ and is a measurable function in $\bx$ which is bounded if $u_1$ is restricted to a bounded set, $\Omega$ and $\partial\Omega$
+	is of class $ C^{2+{\alpha}}(\Omega)$. The function $\mathcal{F}(\bx,u_1)$ and $\mathcal{G}(\bx,u_1)$ are in the class $ C^2 $ in $ u_1 $, and there exists $ K> 0 $ such that $\mathcal{G}(\bx,u_1)<0$
+for $ u_1 > K $. The corresponding eigenvalue problem of \eqref{harvest_system_decoupled2} is represented as follows:
+\begin{align}
+	\label{ef}
+	\begin{cases}
+		&[\mathcal{D}_1\Delta\xi-\beta_1\nabla\cdot\left(\xi\nabla K\right)]+\mathcal{G}(\bx,0)=\lambda\xi,\quad \bx\in \Omega,\\
+		&\mathcal{D}_1\nabla\xi-\beta_1\xi\nabla K=0,\quad \bx\in\partial\Omega.
+	\end{cases}
+\end{align}
+The assumptions on $\mathcal{F}(\bx,u_1)$ imply that we can write $ \mathcal{F}(\bx,u_1) = (\mathcal{G}(\bx,0) + \mathcal{H}(\bx,u_1)u_1) u_1 $, where $\mathcal{H}(\bx,u_1)$ is $C^1$ in $u_1$.
+If the principal eigenvalue $\lambda$ is positive of this problem. Let $\Phi$ be an eigenfunction for \eqref{ef} with $\Phi>0$ on $\Omega$. For $\epsilon>0$ sufficiently small,
+\begin{align*}
+	\mathcal{D}_1\Delta(\epsilon\Phi)-\beta_1\nabla\cdot\left((\epsilon\Phi)\nabla K\right)+\mathcal{F}(\bx,\epsilon\Phi)&=\epsilon\left[\mathcal{D}_1\nabla\Phi-\beta_1\Phi\nabla K+\mathcal{G}(\bx,0)\Phi\right]+\mathcal{H}(\bx,\epsilon\Phi)\epsilon^2\Phi^2\\
+	&=\epsilon\lambda\Phi+\mathcal{H}(\bx,\epsilon\Phi)\epsilon^2\Phi^2\\
+	&=\epsilon\Phi\{\lambda+\mathcal{H}(\bx,\epsilon\Phi)\epsilon\Phi\}.
+\end{align*}
+Hence for $\epsilon > 0$ small, $\epsilon\Phi$	 is a subsolution for the elliptic problem
+\begin{align}
+	\label{ef2}
+	\begin{cases}
+		&[\mathcal{D}_1\nabla u-\beta_1u\nabla K]_{\bx}+\mathcal{F}(\bx,u_1)=\lambda u_1,\quad \bx\in \Omega,\\
+		&\mathcal{D}_1\nabla u-\beta_1u_1=0,\quad \bx\in\partial\Omega,\\
+		&u_1(\bx,0)={u_1}_0(\bx)\geq,\not\equiv0,\ \displaystyle \bx\in \Omega,
+	\end{cases}
+\end{align}
+corresponding to \eqref{harvest_system_decoupled}. If $ \underline{u_1}(\bx,t) $ is a solution to \eqref{harvest_system_decoupled} with $\underline{u_1}(\bx,0) = \epsilon\Phi$, then at
+$ t = 0 $, $\frac{\partial\underline{u_1}}{\partial t}>0$ on $\Omega$
+and general properties of sub-solutions and supersolutions imply
+that $\underline{u_1}(\bx,t)$ is increasing in $ t $. Since $ K > u_1 $ is a supersolution to \eqref{harvest_system_decoupled} we must have
+$\underline{u_1}(\bx,t)\uparrow {u_1}^\ast(\bx) $ as $ t\rightarrow\infty $, where ${u_1}^\ast$ is the minimal positive solution of \eqref{harvest_system_decoupled}
+(we can be sure that ${u_1}^\ast$ is minimal because $\Phi$ will be a strict subsolution for all $ \epsilon> 0 $
+sufficiently small). If $ {u_1}(\bx,t) $ is a solution to \eqref{harvest_system_decoupled} which is initially nonnegative and is
+positive on an open subset of $\Omega$, then the strong maximum principle implies $ {u_1}(\bx,t) > 0 $ on $\overline{\Omega}$ for $ t > 0 $, which completes the proof.
+\end{proof}
+\begin{Lemma}\label{lm18}
+A unique equilibrium solution of \eqref{harvest_system_decoupled} ${u_1}^\ast(\bx)$ exists. Then for any initial solution ${u_1}_0(\bx)\ge 0,\ {u_1}_0(\bx)\not\equiv 0$, the solution ${u_1}(\bx,t)$\ of \eqref{harvest_system_decoupled} satisfies the condition $$\lim_{t\rightarrow\infty}{u_1}(\bx,t)={u_1}^\ast(\bx)$$ uniformly for $\bx\in \overline{\Omega}$.
+\end{Lemma}
+\begin{proof}
+Suppose that the hypotheses of Lemma \ref{lm17} are satisfied and that $ \mathcal{F}(\bx,u_1) =
+\mathcal{G}(\bx,u_1)u_1 $ with $\mathcal{G}(\bx,u_1)$ strictly decreasing in $ u_1 $ for $ u_1 \ge 0 $. Then the minimal positive
+equilibrium ${u_1}^\ast$ is the only positive equilibrium for \eqref{harvest_system_decoupled}. Let ${u_1}^{\ast\ast}$ is a another positive
+equilibrium of \eqref{harvest_system_decoupled} with ${u_1}^{\ast\ast}\ne {u_1}^\ast$ then since $ {u_1}^\ast $ is minimal we must have $ {u_1}^{\ast\ast}> {u_1}^\ast $
+somewhere on $\Omega$. Since ${u_1}^\ast > 0 $ is an equilibrium of \eqref{harvest_system_decoupled} it is a positive solution to
+\begin{align}
+	\label{ef3}
+	\begin{cases}
+		&\mathcal{D}_1\Delta\xi-\beta_1\nabla\cdot(\xi\nabla K)+\mathcal{G}(\bx,{u_1}^\ast)=\lambda\xi,\quad \bx\in \Omega,\\
+		&\mathcal{D}_1\nabla\xi-\beta_1\xi\nabla K=0,\quad \bx\in\partial\Omega.
+	\end{cases}
+\end{align}
+Let $\lambda=0$ is an eigenvalue for any $\xi$ then $\lambda_1=0$ must be the principal eigenvalue of \eqref{ef3}. Similarly $ {u_1}^{\ast\ast}$ satisfies 
+\begin{align}
+		\label{ef4}
+		\begin{cases}
+			&\mathcal{D}_1\Delta\xi-\beta_1\nabla\cdot(\xi\nabla K)+\mathcal{G}(\bx,u_1^{\ast\ast})=\lambda\xi,\quad \bx\in \Omega,\\
+			&\mathcal{D}_1\nabla\xi-\beta_1\xi\nabla K=0,\quad \bx\in\partial\Omega,
+		\end{cases}
+\end{align}with $\lambda=0$ for any $\xi$, so $\lambda_1=0$ is also valid for  \eqref{ef4} as a prinicipal eigenvalue. However, since $ \mathcal{G}(\bx,u_1) $ is strictly
+decreasing in $u_1$ and $ {u_1}^{\ast\ast}> {u_1}^\ast $ on at least part of $\Omega$, the principal eigenvalue in \eqref{ef4}
+must be less than the principal eigenvalue in \eqref{ef3}. Thus, we cannot have $\lambda=0$ in
+both \eqref{ef3} and \eqref{ef4}, so \eqref{harvest_system_decoupled} cannot have any equilibrium other than the minimal
+equilibrium ${u_1}^\ast$, which completes the proof.
+\end{proof}
+\begin{Lemma}
+\label{lm19}
+Let  $ {u_2}_0(\bx) \in \Omega, $ be the non-negative and non-trivial initial continuous function and $ {u_2}_0(\bx) > 0 $	in some non-empty open bounded sub-domain $ \Omega_1 \subset \Omega $. Then for any $ t > 0 $, there exists a unique solution $ u_2(\bx, t) $ of the problem \eqref{harvest_system} and it is positive.
+\end{Lemma}
+\begin{Lemma}\label{lm20}
+A unique equilibrium solution of \eqref{harvest_system} ${u_2}^\ast(\bx)$ exists. Then for any initial solution ${u_2}_0(\bx)\ge 0,\ {u_2}_0(\bx)\not\equiv 0$, the solution ${u_2}(\bx,t)$\ of \eqref{harvest_system} satisfies the condition $$\lim_{t\rightarrow\infty}{u_2}(\bx, t)={u_2}^\ast(\bx),$$ uniformly for $\bx\in \overline{\Omega}$.
+\end{Lemma}
+\begin{proof}
+The Lemmas \ref{lm19} and \ref{lm20} are analogous to Lemma \ref{lm17} and \ref{lm18}, so we can omit the proofs here. 
+\end{proof}
+Consider the stationary problem as
+\begin{align}
+\label{harvest_stationary_decoupled}
+\begin{cases}
+	&\mathcal{D}_1 \Delta u_1-\beta_1\nabla\cdot(u_1\nabla K)+r_1{u_1}{\left[1-\gamma_1-\frac{u_1+u_2}{K}\right]}=0,\quad\displaystyle \bx\in \Omega,\ t>0, \\
+	&\mathcal{D}_2 \Delta u_2-\beta_2\nabla\cdot(u_2\nabla K)+r_2{u_2}{\left[1-\gamma_2-\frac{u_1+u_2}{K}\right]}=0,\quad\displaystyle \bx\in \Omega,\ t>0, \\
+	&\mathcal{D}_1\nabla u_1-\beta_1u_1\nabla K=\mathcal{D}_2\nabla u_2-\beta_2u_2\nabla K=0,\ \displaystyle \bx\in \Omega,\\
+	&	u_1(\bx,0)={{u_1}_0}(\bx)\geq,\not\equiv0,\ \displaystyle \bx\in \Omega,\\
+	&	u_2(\bx,0)={{u_2}_0}(\bx)\geq,\not\equiv0,\ \displaystyle \bx\in \Omega.\\
+\end{cases}
+\end{align}
+Now modify the system in such a way that the system will be harvesting free. Assume $\gamma=\gamma_1=\gamma_2$ and rewrite the first equation of \eqref{harvest_stationary_decoupled} as
+\begin{align*}
+\vspace{0.2cm}
+&\quad\mathcal{D}_1 \Delta u_1-\beta_1\nabla\cdot(u_1\nabla K)+{r_1}{u_1}{\left[1-\gamma_1-\frac{u_1+u_2}{K}\right]}=0\\
+\vspace{0.2cm}
+&=\mathcal{D}_1 \Delta u_1-\beta_1\nabla\cdot(u_1\nabla K)+{r_1}{u_1}{\left[(1-\gamma)-(1-\gamma)\frac{u_1+u_2}{K(1-\gamma)}\right]}\\
+\vspace{0.2cm}
+%&=\mathcal{D}_1 \Delta u_1-\beta_1\nabla\cdot(u_1\nabla K)+{r_1}{u_1}(1-\gamma){\left[1-\frac{u_1+u_2}{K(1-\gamma)}\right]}\\
+%\vspace{0.2cm}
+%&=\mathcal{D}_1 \Delta u_1-\beta_1\nabla\cdot(u_1\nabla K)+{r_1}r{u_1}{\left[1-\frac{u_1+u_2}{Kr}\right]}\\
+\vspace{0.2cm}
+&=\mathcal{D}_1 \Delta u_1-\beta_1\nabla\cdot(u_1\nabla K)+{r_1}r{u_1}{\left[1-\frac{u_1+u_2}{K_1}\right]}.
+\end{align*} 
+If we assume $r=1-\gamma\ \text{and}\ K_1=Kr$. Then we obtain
+\begin{align*}
+\mathcal{D}_1 \Delta u_1-\beta_1\nabla\cdot(u_1\nabla K)+rr_1{u_1}{\left[1-\frac{u_1+u_2}{K_1}\right]}=0.
+\end{align*}
+Similarly the second equation can be written as
+\begin{align*}
+\mathcal{D}_2 \Delta u_2-\beta_2\nabla\cdot(u_2\nabla K)+rr_1{u_2}{\left[1-\frac{u_1+u_2}{K_1}\right]}=0.
+\end{align*}
+Finally, the system \eqref{harvest_stationary_decoupled} can be written of the following equivalent form
+\begin{align}
+\label{harvest_stationary_decoupled2}
+\begin{cases}
+	&\mathcal{D}_1 \Delta u_1-\beta_1\nabla\cdot(u_1\nabla K)+rr_1{u_1}{\left[1-\frac{u_1+u_2}{K_1}\right]}=0,\quad\displaystyle \bx\in \Omega,\ t>0, \\
+	&\mathcal{D}_2 \Delta u_2-\beta_2\nabla\cdot(u_2\nabla K)+rr_1{u_2}{\left[1-\frac{u_1+u_2}{K_1}\right]}=0,\quad\displaystyle \bx\in \Omega,\ t>0, \\
+	&\mathcal{D}_1\nabla u_1-\beta_1u_1\nabla K=\mathcal{D}_2\nabla u_2-\beta_2u_2\nabla K=0,\ \displaystyle \bx\in \Omega,\\
+	&	u_1(\bx,0)={{u_1}_0}(\bx)\geq,\not\equiv0,\ \displaystyle \bx\in \Omega,\\
+	&	u_2(\bx,0)={{u_2}_0}(\bx)\geq,\not\equiv0,\ \displaystyle \bx\in \Omega.\\
+\end{cases}
+\end{align}
+\begin{Lemma}
+Suppose that $K_1(\bx)\not\equiv \text{const}$ and ${u_1}^\ast(\bx)$ is the positive solution of \eqref{harvest_stationary_decoupled2}, then
+$$\displaystyle\int_\Omega{r_1(\bx)K_1\left(1-\frac{{u_1}^\ast(\bx)}{K_1}\right)}d\bx>0.$$
+\end{Lemma}
+\begin{proof}
+Since $K(\bx)>0$\ and\ ${u_1}^\ast(\bx)>0$\ then integrating the first equation of \eqref{harvest_stationary_decoupled2} over the domain, we get
+\begin{align*}
+	&\displaystyle\int_\Omega{\mathcal{D}_1\Delta {u_1}^{\ast}(\bx)-\beta_1\nabla\cdot(u_1^\ast(\bx)\nabla K)+r{r_1}{u_1}^\ast(\bx){\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]}}d\bx=0.
+\end{align*}
+By applying homogeneous neumann boundary condition, we obtain
+\begin{align*}
+	&\displaystyle\int_\Omega r{r_1(\bx){u_1}^\ast(\bx){\left[1-\frac{{u_1}^\ast(\bx)}{K_1(\bx)}\right]}}d\bx=0,\\
+	%		&\Rightarrow\displaystyle\int_\Omega r{r_1(x){u_1}^\ast(x){\left[1-\frac{{u_1}^\ast(x)}{K_1}\right]}}dx=0\\
+	&\Rightarrow\displaystyle\int_\Omega r{r_1(\bx)({u_1}^\ast(\bx)-K_1+K_1){\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]}}d\bx=0,\\
+	&\Rightarrow\displaystyle\int_\Omega r{r_1(\bx)({u_1}^\ast(\bx)-K_1){\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]}}d\bx+\displaystyle\int_\Omega{r_1(\bx)K_1{\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]}}d\bx=0,\\
+%	&\Rightarrow-\displaystyle\int_\Omega r{r_1(\bx)(K_1-{u_1}^\ast(\bx)){\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]}}d\bx+\displaystyle\int_\Omega{r_1(\bx)K_1{\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]}}d\bx=0,\\
+%	&\Rightarrow-\displaystyle\int_\Omega r{r_1(\bx)\left(K_1-K_1\frac{{u_1}^\ast(\bx)}{K_1}\right){\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]}}d\bx+\displaystyle\int_\Omega{r_1(\bx)K_1{\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]}}d\bx=0,\\
+%	&\Rightarrow-\displaystyle\int_\Omega r{r_1(\bx)K_1{\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]^2}}d\bx+\displaystyle\int_\Omega{r_1(\bx)K_1{\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]}}d\bx=0,\\
+	&\Rightarrow\displaystyle\int_\Omega r{r_1(\bx)K_1{\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]^2}}d\bx=\displaystyle\int_\Omega{r_1(\bx)K_1{\left[1-\frac{{u_1}^\ast(\bx)}{K_1}\right]}}d\bx.
+\end{align*}
+Clearly for ${u_1}^\ast(\bx)\ne K_1,\ \displaystyle\int_\Omega{r_1(\bx)K_1{\left[1-\gamma_1-\frac{{u_1}^\ast(\bx)}{K_1}\right]^2}}d\bx>0$. Since ${u_1}^\ast(\bx)=K_1\not\equiv\text{const}$, then ${u_1}^\ast(\bx)$ is not a solution of \eqref{harvest_stationary_decoupled2}. Therefore,
+$$\displaystyle\int_\Omega{r_1(\bx)K_1{\left[1-\gamma_1-\frac{{u_1}^\ast(\bx)}{K_1}\right]}}d\bx>0.$$
+\end{proof}
+%Consider the stationary problem as
+%\begin{align}
+%	\label{harvest_stationary_decoupled22}
+%	\begin{cases}
+%		&[\mathcal{D}_2 v_x-\beta_2 v]_x+r{r_1}v{\left[1-\frac{v}{K}\right]}=0,\quad\displaystyle x\in (a,b),\ t>0 \\
+%		&\mathcal{D}_2v_x-\beta_2v=0,\ \displaystyle x=a,b\\
+%		&	v(x,0)={v_0}(x)\geq,\not\equiv0,\ \displaystyle x\in \Omega
+%	\end{cases}
+%\end{align}
+\begin{Lemma}
+Suppose that $K_1(\bx)\not\equiv \text{const}$ and ${u_2}^\ast(\bx)$ is the positive solution of \eqref{harvest_stationary_decoupled2}, then
+$$\displaystyle\int_\Omega{r_1(\bx)K\left(1-\frac{{u_2}^\ast(\bx)}{K}\right)}d\bx>0.$$
+\end{Lemma}
+\begin{proof}
+The proof is analogous to the previous lemma, so we can omit it here.
+\end{proof}
+\begin{Th}
+Let for $\gamma_1, \gamma_2\in [0,1)$ and any ${u_1}_0(\bx),{u_2}_0(\bx)\in C(\Omega)$ the system \eqref{harvest_system} has a unique solution $ (u_1, u_2) $. Further, when both initial conditions ${u_1}_0$ and $ {u_2}_0 $ are
+non-negative and non-trivial, then $ u_1(\bx, t) > 0 $ and $ u_2(\bx, t) > 0 $ for any $ t > 0 $.
+\end{Th}
+\begin{proof}
+The system \eqref{harvest_system} has a non trivial time dependent solution according to \cite{e3}. Let us consider \cite{e3}
+$$\rho_{u_1}=\max\left\{\sup_{\bx\in \Omega}{u_1}_0(\bx),K(\bx)\right\},~~\rho_{u_2}=\max\left\{\sup_{\bx\in \Omega}{u_2}_0(\bx),K(\bx)\right\}.$$
+Suppose that 
+\begin{align}
+	&g_1(\bx, t, u_1, u_2)=r_1u_1{\left[1-\gamma_1-\frac{u_1+u_2}{K}\right]},\\
+	& g_2(\bx, t, u_1,u_2)=r_2{u_2}{\left[1-\gamma_2-\frac{u_1+u_2}{K}\right]},
+\end{align}
+and define
+$$S^\ast\equiv \{(\check{u_1},\check{u_2})\in C([0,\infty)\times \Omega):0\le \check{u_1}\le \rho_{u_1},0\le \check{u_2}\le \rho_{u_2}\}.$$
+Now the functions $g_1$\ and\ $g_2$\ are quasi-monotone non-increasing Lipshitz functions in $S^\ast$, then the following conditions are satisfied according to \cite{book} 
+\begin{align}
+	&g_1(\bx,t,\rho_{u_1},0)\le 0\le g_1(\bx,t,0,\rho_{u_2}),\\
+	&g_2(\bx,t,0,\rho_{u_2})\le 0\le g_2(\bx,t,\rho_{u_1},0).
+\end{align}
+Then, for the initial solution ${u_1}_0(\bx),{u_2}_0(\bx)$ and the class of continuous functions $C([0,\infty)\times \Omega)$ on $[0,\infty)\times \Omega$\ such that
+$$({u_1}_0,{u_2}_0)\in S^\ast.$$
+Then a unique solution $(u_1(\bx, t),u_2(\bx,t))$\ of \eqref{harvest_system} exists in $S^\ast$ for all $(\bx,t)\in [0,\infty)\times \Omega$. Therefore, $ (u_1(\bx, t), u_2(\bx, t))$ is unique and positive solution.
+\end{proof}
+%
+
+\section{Fully Discrete Schemes} \label{fully-discrete-schme}
+%In this section, we propose and analyze two fully discrete, decoupled, and linearized time-stepping algorithms for approximating a solution of \eqref{RDE1}. The Decoupled Backward-Euler (DBE) scheme is presented in Algorithm \ref{Algn1}, which approximates the temporal derivative by first-order backward-Euler formula and the non-linear term is linearized by the immediate previous time-step solution. In Algorithm \ref{Algn2}, we present Decoupled Backward Difference Formula 2 (DBDF-2) scheme, which consists of second-order accurate time derivative approximation formula, and linearizes the non-linear term by second-order approximation of the unknown solution at the previous time-step. 
+%
+%
+For the purpose of approximating solutions of \eqref{RDE1}, we propose and analyze two fully discrete, decoupled, and linearized time-stepping algorithms. \jaman{Decoupled and linearized algorithms are computationally efficient and popular and have been implemented in many areas of scientific fields including in population dynamics \cite{adan2023interplay, wong2009analysis, mohebujjaman2024decoupled}, Navier-Stokes \cite{linke2017connection} and magnetohydrodynamcs  \cite{AKMR15,HMR17, mohebujjaman2022efficient} problems.} The first-order backward-Euler formula is used in Algorithm \ref{Algn1} to approximate the temporal derivative, and the immediately preceding time-step solution is used to linearize the non-linear component. In Algorithm \ref{Algn2}, we provide the Decoupled Backward Difference Formula 2 (DBDF-2) scheme, which consists of a second-order accurate time derivative approximation formula that linearizes the non-linear term by approximating the unknown solution at the previous time-step.  For the sake of simplicity, we define for $i=1,2,\cdots,N$
+\begin{align}
+\alpha_i:=\cD_i-C\beta_i\|K\|_{\infty,2}-C\|r_i\|_{\infty,\infty}\left(|1-\gamma_i|+\frac{1}{K_{\min}}\right).\label{alpha-def}
+\end{align}
+\begin{algorithm}	%\label{Algn1}
+\caption{DBE scheme}\label{Algn1}
+Given time-step $\Delta t>0$, end time $T>0$, for $i=1,2,\cdots,N$, initial conditions $u_i^0\in L^2(\Omega)^d$, $f_i\in L^2\left(0,T;H^{-1}(\Omega)^d\right)$, $K_{\min}>0$, $\alpha_i>0$, and $r_i\in L^\infty(0,T;L^\infty(\Omega)^d)$. Set $M=T/\Delta t$ and for $n=0,1,\cdots\hspace{-0.35mm},M-1$, compute:
+Find $u_{i,h}^{n+1}\in X_h$ satisfying,  $\forall v_{h}\in X_h$:
+\begin{align}
+	&\left(\frac{u_{i,h}^{n+1}-u_{i,h}^{n}}{\Delta  t},v_{h}\right)+\mathcal{D}_i\left(\nabla u_{i,h}^{n+1},\nabla v_{h}\right)-\beta_i\left(u_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla v_{h}\right)\nonumber\\
+	&=(1-\gamma_i)\left(r_i(t^{n+1})u_{i,h}^{n+1},v_{h}\right)-\left(\frac{r_i(t^{n+1}) u_{i,h}^{n+1}}{K(t^{n+1})}\sum\limits_{j=1}^Nu_{j,h}^n,v_{h}\right)+\left(f_i(t^{n+1}),v_{h}\right).\label{disc-weak-form}
+\end{align}
+\end{algorithm}
+%
+\begin{algorithm}%\label{Algn2}
+\caption{DBDF-2 scheme}\label{Algn2}
+Given time-step $\Delta t>0$, end time $T>0$, for $i=1,2,\cdots,N$, initial conditions $u_i^0,\;u_i^1\in L^2(\Omega)^d$, $f_i\in L^2\left(0,T;H^{-1}(\Omega)^d\right)$, $\alpha_i>0$, $K_{\min}>0$, and $r_i\in L^\infty(0,T;L^\infty(\Omega)^d)$. Set $M=T/\Delta t$ and for $n=1,\cdots\hspace{-0.35mm},M-1$, compute:
+Find $u_{i,h}^{n+1}\in X_h$ satisfying,  $\forall v_{h}\in X_h$:
+\begin{align}
+	& \Bigg(\frac{3u_{i,h}^{n+1}-4u_{i,h}^{n}+u_{h}^{n-1}}{2\Delta  t},v_{h}\Bigg)+\mathcal{D}_i\left(\nabla u_{i,h}^{n+1},\nabla v_{h}\right)\nonumber\\
+	&-\beta_i\left(u_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla v_{h}\right)=(1-\gamma_i)\left(r_i(t^{n+1})u_{i,h}^{n+1},v_{h}\right)\nonumber\\
+	&-\left(\frac{r_i(t^{n+1}) u_{i,h}^{n+1}}{K(t^{n+1})}\sum\limits_{j=1}^N(2u_{j,h}^n-u_{j,h}^{n-1}),v_{h}\right)+\left(f_i(t^{n+1}),v_{h}\right).\label{disc-weak-form2}
+\end{align}
+\end{algorithm}
+%These types of splitting algorithms are commonly used in magnetohydrodynamics \cite{AKMR15,HMR17,MR17}. Throughout the analysis of this paper, we will consider the following assumption:
+%
+\subsection{Stability Analysis}\label{stability-analysis}
+
+The stability theorems and well-posedness of DBE and DBDF-2 schemes are investigated in this section. 
+
+\begin{Lemma}
+There exists a constant $K^*>0$ such that $\|u_{i,h}^n\|_{\infty}\le K^*$ for $i=1,2,\cdots,N$, where $u_{i,h}^n$ is a solution of the DBE/DBDF-2 scheme. \label{assumption-1}
+\end{Lemma}
+\begin{proof}
+The proof is straightforward and similar as in the Lemma 3.5 in \cite{mohebujjaman2024decoupled}.
+\end{proof}
+\begin{comment}
+In the Lemma \ref{lemma-discrete-bound}, which is found at the end of Section \ref{Convergence-sec}, we shall demonstrate that Assumption \ref{assumption-1} is valid.
+\end{comment}
+
+\begin{Th}(Stability Analysis of DBE)\label{stability-theorm}
+For $i=1,2,\cdots,N$, 
+assume $u_{i,h}^0\in L^2(\Omega)^d$, $f_i\in L^2\left(0,T;H^{-1}(\Omega)^d\right)$, $r_i\in L^\infty(0,T;L^\infty(\Omega)^d)$, $K\in L^\infty(0,T;H^2(\Omega)^d),$ $K_{\min}>0$ and using the Lemma \ref{assumption-1}, if $\alpha_i> 0$, then for any $\Delta t>0$:
+\begin{align}
+	\|u_{i,h}^M\|^2+2\alpha_i\Delta t\sum\limits_{n=1}^M\|\nabla u_{i,h}^n\|^2\le\|u_{i,h}^0\|^2+\frac{\Delta t}{\alpha_i}\sum\limits_{n=1}^{M} \|f_i(t^{n})\|_{-1}^2.
+\end{align}
+\end{Th}
+
+
+
+\begin{proof}
+Taking $v_{h}=u_{i,h}^{n+1}$ in \eqref{disc-weak-form}, and using the polarization identity
+$$(q-p,q)=\frac12\left(\|q-p\|^2+\|q\|^2-\|p\|^2\right),$$
+we have
+\begin{align}
+	&\frac{1}{2\Delta t}\Big(\|u_{i,h}^{n+1}-u_{i,h}^{n}\|^2+\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2\Big)+\mathcal{D}_i\|\nabla u_{i,h}^{n+1}\|^2=\beta_i\left(u_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla u_{i,h}^{n+1}\right)+\nonumber\\
+	&(1-\gamma_i)\left(r_i(t^{n+1})u_{i,h}^{n+1},u_{i,h}^{n+1}\right)-\left(\frac{r_i(t^{n+1}) u_{i,h}^{n+1}}{K(t^{n+1})}\sum\limits_{j=1}^Nu_{j,h}^n,u_{i,h}^{n+1}\right)+\left(f_i(t^{n+1}),u_{i,h}^{n+1}\right).\label{pol-new}
+\end{align}
+For the first term on the right-hand-side of \eqref{pol-new}, we use H\"{o}lder's inequality, Sobolev embedding theorem, and Poincar\'e inequalities, to find the following estimate
+\begin{align}
+	\left(u_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla u_{i,h}^{n+1}\right)&\le\|u_{i,h}^{n+1}\|_{L^3}\|\nabla K(t^{n+1})\|_{L^6}\|\nabla u_{i,h}^{n+1}\|\nonumber\\&\le C\|u_{i,h}^{n+1}\|^{\frac12}\|\nabla u_{i,h}^{n+1}\|^{\frac12} \| K(t^{n+1})\|_{H^2(\Omega)}\|\nabla u_{i,h}^{n+1}\|\nonumber\\&\le C\|\nabla u_{i,h}^{n+1}\|^2\|K(t^{n+1})\|_{H^2(\Omega)^d}.\label{first-term-right-up}
+\end{align}
+With the above estimate, we apply H\"{o}lder's inequality on the second and third terms and Cauchy Schwarz's inequality on the forcing term on the right-hand-side of \eqref{pol-new}, we have
+\begin{align}
+	\frac{1}{2\Delta t}\Big(\|u_{i,h}^{n+1}-u_{i,h}^{n}\|^2+\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2\Big)+\mathcal{D}_i\|\nabla u_{i,h}^{n+1}\|^2 \nonumber\\\le C\beta_i\|\nabla u_{i,h}^{n+1}\|^2\|K(t^{n+1})\|_{H^2(\Omega)}+|1-\gamma_i|\|r_i(t^{n+1})\|_{\infty}\|u_{i,h}^{n+1}\|^2\nonumber\\+\Big\|\frac{r_i(t^{n+1})}{K(t^{n+1})}\Big\|_\infty\sum\limits_{j=1}^N\|u_{i,h}^{n+1}\|^2\|u_{j,h}^n\|_{\infty}+\|f_i(t^{n+1})\|_{-1}\|\nabla u_{i,h}^{n+1}\|.\label{before-small-data-assumption}
+\end{align}
+Use of Poincar\'e inequality and the Lemma \ref{assumption-1}, gives
+\begin{align}
+	\frac{1}{2\Delta t}\big(\|u_{i,h}^{n+1}-u_{i,h}^{n}\|^2+\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2\big)+\mathcal{D}_i\|\nabla u_{i,h}^{n+1}\|^2\nonumber\\\le C\beta_i\|\nabla u_{i,h}^{n+1}\|^2\|K\|_{L^\infty\big(0,T;H^2(\Omega)^d\big)}+ C|1-\gamma_i|\|r_i\|_{L^\infty\big(0,T;L^\infty(\Omega)^d\big)}\|\nabla u_{i,h}^{n+1}\|^2\nonumber\\+\frac{C\|r_i\|_{L^\infty\big(0,T;L^\infty(\Omega)^d\big)}}{\inf\limits_{(t,\bx)\in (0,T]\times\Omega}|K|}\|\nabla u_{i,h}^{n+1}\|^2+\|f_i(t^{n+1})\|_{-1}\|\nabla u_{i,h}^{n+1}\|.
+\end{align}
+Grouping terms on the left-hand-side and using \eqref{kmin-def}, and\eqref{alpha-def}, yields
+\begin{align}
+	\frac{1}{2\Delta t}&\left(\|u_{i,h}^{n+1}-u_{i,h}^{n}\|^2+\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2\right)+\alpha_i\|\nabla u_{i,h}^{n+1}\|^2 \le \|f_i(t^{n+1})\|_{-1}\|\nabla u_{i,h}^{n+1}\|.
+\end{align}
+
+Assume $\alpha_i>0$ for $i=1,2,\cdots,N$, apply Young's inequality, and rearrange, to have
+\begin{align}
+	\frac{1}{2\Delta t}\left(\|u_{i,h}^{n+1}-u_{i,h}^{n}\|^2+\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2\right)+\frac{\alpha_i}{2}\|\nabla u_{i,h}^{n+1}\|^2 \le \frac{1}{2\alpha_i}\|f_i(t^{n+1})\|_{-1}^2.
+\end{align}
+Now, multiplying both sides by $2\Delta t$, summing over time steps  $n=0,1,\cdots, M-1$, and dropping non-negative terms from the left-hand-side finishes the proof. 
+\end{proof}
+\begin{Th}(Stability analysis of DBDF-2)\label{stability-theorm2}
+For $i=1,2,\cdots,N$, 
+suppose $u_{i,h}^0,u_{i,h}^1\in L^2(\Omega)^d$, $f_i\in L^2\left(0,T;H^{-1}(\Omega)^d\right)$, $K_{\min}>0$, $r_i\in L^\infty(0,T;L^\infty(\Omega)^d)$, and using the result of the Lemma \ref{assumption-1}, if $\alpha_i> 0$, then for any $\Delta t>0$:
+\begin{align}
+	\|u_{i,h}^{M}\|^2&+\|2u_{i,h}^{M}-u_{i,h}^{M-1}\|^2+2\alpha_i\Delta t\sum\limits_{n=2}^{M}\|\nabla u_{i,h}^{n}\|^2\nonumber\\&\le\|u_{i,h}^{1}\|^2+\|2u_{i,h}^{1}-u_{i,h}^{0}\|^2
+	+\frac{2\Delta t}{\alpha_i}\sum\limits_{n=2}^{M}\|f_i(t^{n})\|_{-1}^2.
+\end{align}
+\end{Th}
+\begin{proof}
+Set $v_{h}=u_{i,h}^{n+1}$ in \eqref{disc-weak-form2}, to obtain
+\begin{align}\label{pol-new2}
+	&  \Bigg(\frac{3u_{i,h}^{n+1}-4u_{i,h}^{n}+u_{i,h}^{n-1}}{2\Delta  t},u_{i,h}^{n+1}\Bigg)+\mathcal{D}_i\|\nabla u_{i,h}^{n+1}\|^2\nonumber\\&=\beta_i\left(u_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla u_{i,h}^{n+1}\right)+(1-\gamma_i)\left(r_i(t^{n+1})u_{i,h}^{n+1},u_{i,h}^{n+1}\right) \nonumber\\
+	&-\left(\frac{r_i(t^{n+1}) u_{i,h}^{n+1}}{K(t^{n+1})}\sum\limits_{j=1}^N(2u_{j,h}^n-u_{j,h}^{n-1}),u_{i,h}^{n+1}\right)+\left(f_i(t^{n+1}),u_{i,h}^{n+1}\right).
+\end{align}
+Using the upper bound of the first term on the right-hand-side of \eqref{pol-new2} given in  \eqref{first-term-right-up}, and using the following identity
+\begin{eqnarray}
+	(3p-4q+r,p)=\frac{p^2+(2p-q)^2}{2}-\frac{q^2+(2q-r)^2}{2}+\frac{(p-2q+r)^2}{2},\label{ident}
+\end{eqnarray}
+we obtain
+\begin{align}
+	\frac{1}{4\Delta t}\Big(&\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2+\|2u_{i,h}^{n+1}-u_{i,h}^{n}\|^2-\|2u_{i,h}^{n}-u_{i,h}^{n-1}\|^2+\|u_{i,h}^{n+1}-2u_{i,h}^{n}+u_{i,h}^{n-1}\|^2\Big)\nonumber\\&+\mathcal{D}_i\|\nabla u_{i,h}^{n+1}\|^2\le C\|\nabla u_{i,h}^{n+1}\|^2\|K(t^{n+1})\|_{H^2(\Omega)^d}+(1-\gamma_i)\left(r_i(t^{n+1})u_{i,h}^{n+1},u_{i,h}^{n+1}\right)\nonumber\\
+	&-\left(\frac{r_i(t^{n+1}) u_{i,h}^{n+1}}{K(t^{n+1})}\sum\limits_{j=1}^N(2u_{j,h}^n-u_{j,h}^{n-1}),u_{i,h}^{n+1}\right)+
+	\left(f_i(t^{n+1}),u_{i,h}^{n+1}\right).\label{BDF2-identity}
+\end{align}
+Applying H\"{o}lder's inequality on the second term, H\"{o}lder's and triangle inequalities on the  third term, and Cauchy Schwarz's inequality on the forcing term on the right-hand-side of \eqref{BDF2-identity}, yields
+\begin{align*}
+	\frac{1}{4\Delta t}\Big(\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2+\|2u_{i,h}^{n+1}-u_{i,h}^{n}\|^2-\|2u_{i,h}^{n}-u_{i,h}^{n-1}\|^2+\|u_{i,h}^{n+1}-2u_{i,h}^{n}+u_{i,h}^{n-1}\|^2\Big)\nonumber\\+\mathcal{D}_i\|\nabla u_{i,h}^{n+1}\|^2\le C\|\nabla u_{i,h}^{n+1}\|^2\|K(t^{n+1})\|_{H^2(\Omega)^d}+|1-\gamma_i|\|r_i(t^{n+1})\|_{\infty}\|u_{i,h}^{n+1}\|^2\nonumber\\+\Big\|\frac{r_i(t^{n+1})}{K(t^{n+1})}\Big\|_\infty\sum\limits_{j=1}^N\|u_{i,h}^{n+1}\|^2\big(2\|u_{j,h}^n\|_{\infty}+\|u_{j,h}^{n-1}\|_{\infty}\big)+\|f_i(t^{n+1})\|_{-1}\|\nabla u_{i,h}^{n+1}\|.
+\end{align*}
+%By using Cauchy-Schwarz inequality and the property $\|u_i\|\geq\|\nabla u_i\|$, we have
+%$$(u_i,\nabla u_i)\geq\|\nabla u_i\|^2.$$
+%	By using property of norm, we obtain
+%	\begin{multline}
+	%		\frac{1}{4\Delta t}\Big(\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2+\|2u_{i,h}^{n+1}-u_{i,h}^{n}\|^2-\|2u_{i,h}^{n}-u_{i,h}^{n-1}\|^2+\|u_{i,h}^{n+1}-2u_{i,h}^{n}+u_{i,h}^{n-1}\|^2\Big)\\+\mathcal{D}_i\|\nabla u_{i,h}^{n+1}\|^2-\beta_i\|\nabla u_{i,h}^{n+1}\|^2 \le|1-\gamma_i|\|r_i(t^{n+1})\|_{\infty}\|u_{i,h}^{n+1}\|^2\\
+	%		+\Big\|\frac{r_i(t^{n+1})}{K(t^{n+1})}\Big\|_\infty\sum\limits_{J=1}^N\|u_{i,h}^{n+1}\|^2\big(2\|u_{j,h}^n\|_{\infty}+\|u_{j,h}^{n-1}\|_{\infty}\big)+\|f_i(t^{n+1})\|_{-1}\|\nabla u_{i,h}^{n+1}\|.\label{before-small-data-assumption-bdf2}
+	%	\end{multline}
+Using the Poincar\'e inequality and the Lemma \ref{assumption-1}, we obtain
+\begin{multline}\label{eq3}
+	\frac{1}{4\Delta t}\Big(\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2+\|2u_{i,h}^{n+1}-u_{i,h}^{n}\|^2-\|2u_{i,h}^{n}-u_{i,h}^{n-1}\|^2+\|u_{i,h}^{n+1}-2u_{i,h}^{n}+u_{i,h}^{n-1}\|^2\Big)\\+\mathcal{D}_i\|\nabla u_{i,h}^{n+1}\|^2\le C\|\nabla u_{i,h}^{n+1}\|^2\|K(t^{n+1})\|_{L^\infty\big(0,T;L^\infty(\Omega)^d\big)}+ C|1-\gamma_i|\|r_i\|_{L^\infty\big(0,T;L^\infty(\Omega)^d\big)}\|\nabla u_{i,h}^{n+1}\|^2\\
+	+\frac{C\|r_i\|_{L^\infty\big(0,T;L^\infty(\Omega)^d\big)}}{\inf\limits_{(t,{\bf x})\in (0,T]\times\Omega}|K|}\|\nabla u_{i,h}^{n+1}\|^2+\|f_i(t^{n+1})\|_{-1}\|\nabla u_{i,h}^{n+1}\|.
+\end{multline}
+Grouping the terms on the left-hand-side and using \eqref{alpha-def}, and \eqref{kmin-def}, the inequality \eqref{eq3} yields
+%	\begin{multline}
+	%		\label{eq3}
+	%		\frac{1}{4\Delta t}\Big(\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2+\|2u_{i,h}^{n+1}-u_{i,h}^{n}\|^2-\|2u_{i,h}^{n}-u_{i,h}^{n-1}\|^2+\|u_{i,h}^{n+1}-2u_{i,h}^{n}+u_{i,h}^{n-1}\|^2\Big)+\\
+	%		\|\nabla u_{i,h}^{n+1}\|^2\bigg(\mathcal{D}_i-\beta_i-|1-\gamma_i|\|r_i\|_{\infty} -\displaystyle\frac{C\|r_i\|_{\infty,\infty}}{K_\text{min}} 	\sum\limits_{J=1}^N\big(2\|u_{j,h}^n\|_{\infty}+\|u_{j,h}^{n-1}\|_{\infty}\big)\bigg ) \le\|f_i(t^{n+1})\|_{-1}\|\nabla u_{i,h}^{n+1}\|.\\
+	%		~~~~~~~  (\because K_\text{min}={\inf\limits_{(t,{\bf x})\in (0,T]\times\Omega}|K|}).
+	%	\end{multline}
+%   Using Poincar\'e inequality, the Assumption \ref{assumption-1}, and grouping terms on the left-hand-side to obtain
+\begin{align}
+	\frac{1}{4\Delta t}\Big(\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2&+\|2u_{i,h}^{n+1}-u_{i,h}^{n}\|^2-\|2u_{i,h}^{n}-u_{i,h}^{n-1}\|^2+\|u_{i,h}^{n+1}-2u_{i,h}^{n}+u_{i,h}^{n-1}\|^2\Big)\nonumber\\
+	&+\alpha_i\|\nabla u_{i,h}^{n+1}\|^2 \le \|f_i(t^{n+1})\|_{-1}\|\nabla u_{i,h}^{n+1}\|.
+\end{align}
+%       Drop non-negative term from left-hand-side, assume $\alpha_i>0$, use Young's inequality, and hide term on left-hand-side to obtain
+%	Assume $\alpha_i>0$, to use Young's inequality, we start with the following inequality:
+%	\begin{align*}
+	%		\frac{1}{4\Delta t}\Big(\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2+\|2u_{i,h}^{n+1}-u_{i,h}^{n}\|^2-\|2u_{i,h}^{n}-u_{i,h}^{n-1}\|^2+\|u_{i,h}^{n+1}-2u_{i,h}^{n}+u_{i,h}^{n-1}\|^2\Big)\nonumber\\
+	%		+\alpha_i|\nabla u_{i,h}^{n+1}|^2 \le \|f_i(t^{n+1})\|_{-1}|\nabla u_{i,h}^{n+1}|.
+	%	\end{align*}
+Assume $\alpha_i>0$ for $i=1,2,\cdots,N$ and use Young's inequality, to get
+\begin{align}
+	\frac{1}{4\Delta t}\Big(\|u_{i,h}^{n+1}\|^2-\|u_{i,h}^{n}\|^2+\|2u_{i,h}^{n+1}-u_{i,h}^{n}\|^2-&\|2u_{i,h}^{n}-u_{i,h}^{n-1}\|^2+\|u_{i,h}^{n+1}-2u_{i,h}^{n}+u_{i,h}^{n-1}\|^2\Big)\nonumber\\
+	&+\frac{\alpha_i}{2}\|\nabla u_{i,h}^{n+1}\|^2 \le \frac{1}{2\alpha_i}\|f_i(t^{n+1})\|_{-1}^2.
+\end{align}
+Now, dropping non-negative term from the left-hand-side, multiplying both sides by $4\Delta t$, and summing over time-steps $n=1,\cdots, M-1$, completes the proof.
+\end{proof}
+
+\begin{comment}
+\begin{Rem}
+	%The finite dimensional schemes Algorithm \ref{Algn1} and \ref{Algn2} are linear at each time-step and the stability theorems provide their solutions are bounded continuously by the problem data, which is sufficient for the well-posedness of the schemes. The linearity of the schemes provides the uniqueness of the solution via their stability theorem. Because of the finite dimensional and linearity features, the uniqueness implies existence of the solution, therefore the solution to the Algorithm \ref{Algn1} and \ref{Algn2} exist uniquely \cite{HMR17,mohebujjaman2022efficient}.
+	The finite dimensional schemes Algorithm \ref{Algn1} and \ref{Algn2} are linear at each time-step, and the stability theorems indicate that their solutions are constantly bounded by the problem data, which is sufficient for the schemes' well-posedness. The uniqueness of the solution is provided by the linearity of the schemes via their stability theorem. Because of the finite dimensionality and linearity properties, uniqueness guarantees the existence of the solution; thus, the solutions to the Algorithms \ref{Algn1} and \ref{Algn2} exist uniquely \cite{HMR17,mohebujjaman2022efficient}.
+\end{Rem}
+
+\begin{Rem} 
+	For arbitrarily small diffusion parameters $\mathcal{D}_i$, the problem may behave like singularly perturbed problems for
+	which the use of adaptive mesh generation is important, see \cite{chandru2019numerical, das2018higher}. For small diffusion term, the boundary layer originated reaction diffusion problem is analyzed in \cite{shakti2022moving}.
+\end{Rem}
+\end{comment}
+
+
+\subsection{Convergence Analysis}\label{Convergence-sec}
+In this section, we provide finite element error analyses and apriori estimates of the errors in the DBE and DBDF-2 schemes.
+
+\begin{Th}(Error estimation of DBE) Consider $m=\max\{2,k+1\}$, and $i=1,2,\cdots,N$, assume $u_i$ solves \eqref{RDE1} and satisfies
+\begin{align*}
+	u_i\in L^\infty\big(0,T;H^m(\Omega)^d\big),&\hspace{1mm}u_{i,t}\in L^\infty\big(0,T;L^2(\Omega)^d\big),\hspace{1mm}u_{i,tt}\in L^\infty\big(0,T;L^2(\Omega)^d\big),\\&r_i\in L^\infty\left(0,T;L^\infty(\Omega)^d\right),\text{ and } K_{\min}>0,
+\end{align*}
+
+if $\alpha_i>0$ then for $\Delta t>0$ the solution $u_{i,h}$ to the Algorithm  \ref{Algn1} converges to the true solution with
+\begin{align}
+	\sum\limits_{i=1}^N\|u_i(T)-u_{i,h}^M\|+\sum\limits_{i=1}^N\left\{\alpha_i\Delta t\sum_{n=1}^M\|\nabla \big(u_i(t^n)-u_{i,h}^n\big)\|^2\right\}^{\frac{1}{2}}\le C \big(h^{k}+\Delta t\big).
+\end{align}\label{Convergence-analysis-BE}
+\end{Th}
+
+\begin{proof}
+Firstly, we construct an error equation at the time step $t^{n+1}$, the continuous variational formulations can be written as $\forall v_{h}\in X_h$
+\begin{align}
+	\Bigg(&\frac{u_{i}(t^{n+1})-u_{i}(t^{n})}{\Delta  t},v_{h}\Bigg)+\mathcal{D}_i\left(\nabla u_{i}(t^{n+1}),\nabla v_{h}\right)-\beta_i\left(u_{i}(t^{n+1})\nabla K(t^{n+1}),\nabla v_{h}\right)\nonumber\\&=
+	(1-\gamma_i)\left(r_i(t^{n+1})u_{i}(t^{n+1}),v_{h}\right)-\left(\frac{r_i(t^{n+1}) u_{i}(t^{n+1})}{K(t^{n+1})}\sum\limits_{j=1}^Nu_{j}(t^{n+1}),v_{h}\right)\nonumber\\
+	&+\left(f_i(t^{n+1}),v_{h}\right)+\left(\frac{u_{i}(t^{n+1})-u_{i}(t^{n})}{\Delta  t}- u_{i,t}(t^{n+1}),v_{h}\right).\label{cont-weak-form}
+\end{align}
+Denote $e_i^n:=u_i(t^{n+1})-u_{i,h}^n$. Subtract \eqref{disc-weak-form} from \eqref{cont-weak-form} and then rearranging yields
+\begin{align}
+	\left(\frac{e_{i}^{n+1}-e_{i}^{n}}{\Delta  t},v_{h}\right)+\mathcal{D}_i\left(\nabla e_{i}^{n+1},\nabla v_{h}\right)-\beta_i\left( e_{i}^{n+1}\nabla K(t^{n+1}),\nabla v_{h}\right)\nonumber\\-(1-\gamma_i)\left(r_i(t^{n+1})e_{i}^{n+1},v_{h}\right)+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}e_i^{n+1}u_{j,h}^n,v_{h}
+	\right)=G(t,u_i,v_{h}),\label{error-equation}
+\end{align}
+where \begin{align*}
+	G(t,u_i,v_{h}):=\left(\frac{u_{i}(t^{n+1})-u_{i}(t^{n})}{\Delta  t}- u_{i,t}(t^{n+1}),v_{h}\right)\\
+	+\left(\frac{r_i(t^{n+1}) u_{i}(t^{n+1})}{K(t^{n+1})}\sum\limits_{j=1}^N\big\{u_{j,h}^{n}-u_{j}(t^{n+1})\big\},v_{h}\right).
+\end{align*}
+We now decompose the errors as follows:
+\begin{align*}
+	e_{i}^n:& = u_i(t^n)-u_{i,h}^n=(u_i(t^n)-\tilde{u}_i^n)-(u_{i,h}^n-\tilde{u}_i^n):=\eta_{i}^n-\phi_{i,h}^n,
+\end{align*}
+where $\tilde{u}_i^n: =P_{X_h}^{L^2}(u_i(t^n))\in X_h$ is the $L^2$ projections of $u_j(t^n)$ into $X_h$. Note that $(\eta_{i}^n,v_{h})=0\hspace{2mm} \forall v_{h}\in X_h$.  Rewriting, we have for $v_{h}\in X_h$
+\begin{align}
+	\Bigg(&\frac{\phi_{i,h}^{n+1}-\phi_{i,h}^{n}}{\Delta  t},v_{h}\Bigg)+\mathcal{D}_i\left(\nabla \phi_{i,h}^{n+1},\nabla v_{h}\right)-\beta_i\left( \phi_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla v_{h}\right)\nonumber\\
+	&-(1-\gamma_i)\left(r_i(t^{n+1})\phi_{i,h}^{n+1},v_{h}\right)+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}\phi_{i,h}^{n+1}u_{j,h}^n,v_{h}
+	\right)\nonumber\\&=\mathcal{D}_i\left(\nabla \eta_{i}^{n+1},\nabla v_{h}\right)-\beta_i\left(\eta_{i}^{n+1}\nabla K(t^{n+1}),\nabla v_{h}\right)\nonumber\\
+	&-(1-\gamma_i)\left(r_i(t^{n+1})\eta_{i}^{n+1},v_{h}\right)+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}\eta_i^{n+1}u_{j,h}^n,v_{h}
+	\right)-G(t,u_i,v_{h}).\label{phi-equation}
+\end{align}
+Choose $v_{h}=\phi_{i,h}^{n+1}$, and use the polarization identity in \eqref{phi-equation}, to obtain
+\begin{align}\label{all-phi}
+	&	\frac{1}{2\Delta t}\left(\|\phi_{i,h}^{n+1}-\phi_{i,h}^{n}\|^2+\|\phi_{i,h}^{n+1}\|^2-\|\phi_{i,h}^{n}\|^2\right)+\mathcal{D}_i\|\nabla\phi_{i,h}^{n+1}\|^2-\beta_i\left( \phi_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla \phi_{i,h}^{n+1}\right)\nonumber\\
+	&~~~~~~	-(1-\gamma_i)\left(r_i(t^{n+1})\phi_{i,h}^{n+1},\phi_{i,h}^{n+1}\right)	+\sum\limits_{j=1}^N\left( \frac{r_i(t^{n+1})}{K(t^{n+1})}\phi_{i,h}^{n+1}u_{j,h}^n,\phi_{i,h}^{n+1}\right)\nonumber\\
+	&\le \mathcal{D}_i\left(\nabla \eta_{i}^{n+1},\nabla \phi_{i,h}^{n+1}\right)	-\beta_i\left( \eta_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla \phi_{i,h}^{n+1}\right)-(1-\gamma_i)\left(r_i(t^{n+1})\eta_{i}^{n+1},\phi_{i,h}^{n+1}\right)\nonumber\\
+	&+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}\eta_{i}^{n+1} u_{j,h}^n,\phi_{i,h}^{n+1}\right)-G\left(t,u_i,\phi_{i,h}^{n+1}\right).
+\end{align}
+Now, we find the upper-bounds of terms in the above equation. Use H\"{o}lder's inequality, Sobolev embedding theorem, and Poincar\'e inequalities, to find 
+\begin{align*}
+	\left(\phi_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla\phi_{i,h}^{n+1}\right)&\le\|\phi_{i,h}^{n+1}\|_{L^3}\|\nabla K(t^{n+1})\|_{L^6}\|\nabla \phi_{i,h}^{n+1}\|\\&\le C\|\phi_{i,h}^{n+1}\|^{\frac12}\|\nabla\phi_{i,h}^{n+1}\|^{\frac{1}{2}}\|K(t^{n+1})\|_{H^2(\Omega)^d}\|\nabla \phi_{i,h}^{n+1}\|\\&\le C\|\nabla \phi_{i,h}^{n+1}\|^2\|K(t^{n+1})\|_{L^\infty\big(0,T;H^2(\Omega)^d\big)},\\
+	\left(\eta_{i}^{n+1}\nabla K(t^{n+1}),\nabla \phi_{i,h}^{n+1}\right)&\le\|\eta_{i}^{n+1}\|_{L^3}\|\nabla K(t^{n+1})\|_{L^6}\|\nabla \phi_{i,h}^{n+1}\|\\&\le C\|\nabla\eta_{i}^{n+1}\|\|K(t^{n+1})\|_{L^\infty\big(0,T;H^2(\Omega)^d\big)}\|\nabla \phi_{i,h}^{n+1}\|.
+\end{align*}
+Apply Young's inequality, to have
+\begin{align*}
+	\beta_i\left(\eta_{i}^{n+1}\nabla K(t^{n+1}),\nabla \phi_{i,h}^{n+1}\right)\le\frac{\alpha_i}{12}\|\nabla \phi_{i,h}^{n+1}\|^2+\frac{C\beta_i^2}{\alpha_i}\|\nabla\eta_{i}^{n+1}\|^2\|K\|_{\infty,2}^2.
+\end{align*}
+Using H\"older's, and Poincar\'e inequalities, we have
+\begin{align*}
+	(1-\gamma_i)\left(r_i(t^{n+1})\phi_{i,h}^{n+1},\phi_{i,h}^{n+1}\right)&\le|1-\gamma_i|\|r_i(t^{n+1})\|_{\infty}\| \phi_{i,h}^{n+1}\|^2\\&\le C |1-\gamma_i|\|r_i\|_{\infty,\infty}\|\nabla \phi_{i,h}^{n+1}\|^2.
+\end{align*}
+Next, using triangle, H\"older's, and Poincar\'e inequalities together with the Lemma \ref{assumption-1}, we have
+\begin{align*}
+	-\sum\limits_{j=1}^N\left( \frac{r_i(t^{n+1}) }{K(t^{n+1})}\phi_{i,h}^{n+1}u_{j,h}^n,\phi_{i,h}^{n+1}\right)&\le\sum\limits_{j=1}^N\frac{\|r_i(t^{n+1})\|_{\infty}}{\inf\limits_\Omega\|K(t^{n+1})\|}\Big|\left(\phi_{i,h}^{n+1}u_{j,h}^n,\phi_{i,h}^{n+1}\right)\Big|\nonumber\\&\le\sum\limits_{j=1}^N\frac{\|r_i\|_{\infty,\infty}}{K_{\min}}\|u_{j,h}^{n}\|_\infty\|\phi_{i,h}^{n+1}\|^2\nonumber\\&\le\frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}
+	\|\nabla\phi_{i,h}^{n+1}\|^2.
+\end{align*} 
+With the assumption $\alpha_i>0$, use Cauchy-Schwarz, and Young's inequalities, to obtain
+\begin{align*}
+	\mathcal{D}_i\left(\nabla \eta_{i}^{n+1},\nabla \phi_{i,h}^{n+1}\right)\le \mathcal{D}_i\|\nabla \eta_{i}^{n+1}\|\|\nabla \phi_{i,h}^{n+1}\|\le\frac{\alpha_i}{12}\|\nabla \phi_{i,h}^{n+1}\|^2+\frac{3\mathcal{D}_i^2}{\alpha_i}\|\nabla \eta_{i}^{n+1}\|^2.
+\end{align*}
+Using H\"older's, and Poincar\'e inequalities, Lemma \ref{assumption-1}, and Young's inequality, we have
+\begin{align*}
+	(1-\gamma_i)\left(r_i(t^{n+1})\eta_{i}^{n+1},\phi_{i,h}^{n+1}\right)&\le|1-\gamma_i|\|r_i(t^{n+1})\|_\infty\|\eta_{i}^{n+1}\|\|\phi_{i,h}^{n+1}\|\\&\le C|1-\gamma_i|\|r_i\|_{\infty,\infty}\|\eta_{i}^{n+1}\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le\frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C(1-\gamma_i)^2\|r_i\|_{\infty,\infty}^2}{\alpha_i}\|\eta_{i}^{n+1}\|^2,\\
+	\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}\eta_{i}^{n+1} u_{j,h}^n,\phi_{i,h}^{n+1}\right)&\le\sum\limits_{j=1}^N\frac{\|r_i(t^{n+1})\|_{\infty}}{\inf\limits_\Omega\|K(t^{n+1})\|}\Big|\left(\eta_{i}^{n+1} u_{j,h}^n,\phi_{i,h}^{n+1}\right)\Big|\\&\le \sum\limits_{j=1}^N\frac{\|r_i\|_{\infty,\infty}}{K_{\min}}\|\eta_{i}^{n+1}\|\| u_{j,h}^n\|_\infty\|\|\phi_{i,h}^{n+1}\|\\&\le \frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}\|\eta_{i}^{n+1}\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le \frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_iK_{\min}^2}\|\eta_{i}^{n+1}\|^2.
+\end{align*}
+Now we want to find the upper-bound of \begin{align}    G(t,u_i,\phi_{i,h}^{n+1})=\left(\frac{u_{i}(t^{n+1})-u_{i}(t^{n})}{\Delta  t}- u_{i,t}(t^{n+1}),\phi_{i,h}^{n+1}\right)\nonumber\\+\left(\frac{r_i(t^{n+1}) u_{i}(t^{n+1})}{K(t^{n+1})}\sum\limits_{j=1}^N\big\{u_{j,h}^{n}-u_{j}(t^{n+1})\big\},\phi_{i,h}^{n+1}\right).\label{G-phi}
+\end{align}
+For some $t^*\in[t^n,t^{n+1}]$, we use Taylor's series expansion, Cauchy-Schwarz, Poincar\'e, and Young's inequalities to obtain the following bound for the first term on the right-hand-side of \eqref{G-phi}
+\begin{align*}
+	\left(\frac{u_{i}(t^{n+1})-u_{i}(t^{n})}{\Delta  t}- u_{i,t}(t^{n+1}),\phi_{i,h}^{n+1}\right)&=\frac{\Delta t}{2}\left(u_{i,tt}(t^*),\phi_{i,h}^{n+1}\right)\\&\le\frac{C\Delta t}{2}\|u_{i,tt}(t^*)\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le\frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C(\Delta t)^2}{\alpha_i}\|u_{i,tt}(t^*)\|^2.
+\end{align*}
+We can find the upper-bound of the last term on the right-hand-side of \eqref{G-phi} using H\"older's, triangle, Poincar\'e, Young's inequalities, and  Taylor's series expansion, together with the regularity assumption as
+\begin{align*}
+	\Bigg(\frac{r_i(t^{n+1}) u_{i}(t^{n+1})}{K(t^{n+1})}&\sum\limits_{j=1}^N\big\{u_{j,h}^{n}-u_{j}(t^{n+1})\big\},\phi_{i,h}^{n+1}\Bigg)\\&\le\frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}\|u_{i}(t^{n+1})\|_\infty\sum\limits_{j=1}^N\|u_{j,h}^{n}-u_{j}(t^{n+1})\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le\sum\limits_{j=1}^N\frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}\|u_{j,h}^{n}-u_{j}(t^{n+1})\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le\sum\limits_{j=1}^N\left(\frac{\alpha_i}{12N}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_i K_{\min}^2}\|u_{j,h}^{n}-u_{j}(t^{n+1})\|^2\right)\\&\le \frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_i K_{\min}^2}\sum_{j=1}^N\big(\|u_{j,h}^{n}-u_j(t^n)\|^2+\|u_j(t^n)-u_j(t^{n+1})\|^2\big)\\&\le\frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_i K_{\min}^2}\sum_{j=1}^N\big(2\|\eta_j^n\|^2+2\|\phi_{j,h}^n\|^2+(\Delta t)^2\|u_{j,t}(s^*)\|^2\big)\\&\le\frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_i K_{\min}^2}\big(h^{2k+2}+(\Delta t)^2\big)+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_i K_{\min}^2}\sum_{j=1}^N\|\phi_{j,h}^n\|^2,
+\end{align*}
+with $s^*\in[t^n,t^{n+1}]$.
+Thus, we have
+\begin{align*}   |G(t,u_i,\phi_{i,h}^{n+1})|\le\frac{\alpha_i}{6}\|\nabla\phi_{i,h}^{n+1}\|^2+C\big(h^{2k+2}+(\Delta t)^2\big)+C\sum_{j=1}^N\|\phi_{j,h}^n\|^2.
+\end{align*}
+Now, using the above bounds, we can rewrite \eqref{all-phi} as\begin{align}
+	&\frac{1}{2\Delta t}\left(\|\phi_{i,h}^{n+1}-\phi_{i,h}^{n}\|^2+\|\phi_{i,h}^{n+1}\|^2-\|\phi_{i,h}^{n}\|^2\right)+\frac{\alpha_i}{2}\|\nabla\phi_{i,h}^{n+1}\|^2\nonumber\\&\le \frac{C\beta_i^2}{\alpha_i}\|\nabla\eta_{i}^{n+1}\|^2\|K\|_{\infty,2}^2+\frac{3\mathcal{D}_i^2}{\alpha_i}\|\nabla \eta_{i}^{n+1}\|^2+C\sum_{j=1}^N\|\phi_{j,h}^n\|^2\nonumber\\&+\frac{C(1-\gamma_i)^2\|r_i(t^{n+1})\|_\infty^2}{\alpha_i}\|\eta_{i}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_i K_{\min}^2}\|\eta_{i}^{n+1}\|^2+C\big(h^{2k+2}+(\Delta t)^2\big).
+\end{align}
+Using the regularity assumption again, we obtain
+\begin{align}
+	\frac{1}{2\Delta t}\left(\|\phi_{i,h}^{n+1}-\phi_{i,h}^{n}\|^2+\|\phi_{i,h}^{n+1}\|^2-\|\phi_{i,h}^{n}\|^2\right)+\frac{\alpha_i}{2}\|\nabla\phi_{i,h}^{n+1}\|^2\nonumber\\\le C\big(h^{2k}+(\Delta t)^2\big)+C\sum_{j=1}^N\|\phi_{j,h}^n\|^2.
+\end{align}
+Dropping non-negative term from left-hand-side, multiplying both sides by $2\Delta t$, use $\|\phi_{i,h}^0\|=0$, $\Delta{t}M=T$, and summing over time-steps $n=0,1,\cdots,M-1$ to find
+\begin{align}
+	\|\phi_{i,h}^{M}\|^2+\alpha_i\Delta t\sum\limits_{n=1}^{M}\|\nabla\phi_{i,h}^{n}\|^2\le \Delta t\sum\limits_{n=1}^{M-1}C\left(\sum_{j=1}^N\|\phi_{j,h}^n\|^2\right)+C\big(h^{2k}+(\Delta t)^2\big).
+\end{align}
+Sum over $i=1,2,\cdots,N$, we have
+\begin{align}
+	\sum\limits_{i=1}^N\|\phi_{i,h}^{M}\|^2+\Delta t\sum\limits_{n=1}^{M}\left(\sum\limits_{i=1}^N\alpha_i\|\nabla\phi_{i,h}^{n}\|^2\right)\nonumber\\\le \Delta t\sum\limits_{n=1}^{M-1}C\left(\sum_{i=1}^N\|\phi_{i,h}^n\|^2\right)+C\big(h^{2k}+(\Delta t)^2\big).
+\end{align}
+Applying the discrete Gr\"onwall Lemma \ref{dgl}, we have
+\begin{align}
+	\sum\limits_{i=1}^N\|\phi_{i,h}^{M}\|^2+\Delta t\sum\limits_{n=1}^{M}\left(\sum\limits_{i=1}^N\alpha_i\|\nabla\phi_{i,h}^{n}\|^2\right)\le C \big(h^{2k}+(\Delta t)^2\big),
+\end{align}
+which gives
+\begin{align}
+	\|\phi_{i,h}^{M}\|^2+\alpha_i\Delta t\sum\limits_{n=1}^{M}\|\nabla\phi_{i,h}^{n}\|^2\le C \big(h^{2k}+(\Delta t)^2\big)\hspace{4mm}\text{for}\hspace{1mm}i=1,2,\cdots,N.\label{bound-on-phi}
+\end{align}
+Use of triangle and Young's inequalities allows us to write
+\begin{align}
+	&\|e_i^M\|^2+\alpha_i\Delta t\sum_{n=1}^M\|\nabla e_i^n\|^2\nonumber\\&\le 2\left(\|\phi_{i,h}^{M}\|^2+\alpha_i\Delta t\sum\limits_{n=1}^{M}\|\nabla\phi_{i,h}^{n}\|^2+\|\eta_i^M\|^2+\alpha_i\Delta t\sum\limits_{n=1}^{M}\|\nabla\eta_{i}^{n}\|^2\right).
+\end{align}
+Using regularity assumptions and bound in \eqref{bound-on-phi}, we have for $i=1,2,\cdots,N$
+\begin{align}
+	\|u_i(T)-u_{i,h}^M\|^2+\alpha_i\Delta t\sum_{n=1}^M\|\nabla \big(u_i(t^n)-u_{i,h}^n\big)\|^2\le C\big(h^{2k}+(\Delta t)^2\big).
+\end{align}
+Now, summing over $i=1,2,\cdots,N$ completes the proof.
+\end{proof}
+
+
+\begin{Th} (Error estimation of DBDF-2) For $i=1,2,\cdots,N$, assume $u_i$ solves \eqref{RDE1} and satisfies
+\begin{align*}
+	u_i\in L^\infty\left(0,T;H^{k+1}(\Omega)^d\right),& u_{i,tt}\in L^\infty\left(0,T;L^2(\Omega)^d\right),u_{i,ttt}\in L^\infty\left(0,T;L^2(\Omega)^d\right),\\
+	&r_i\in L^\infty\left(0,T;L^\infty(\Omega)^d\right),\text{ and } K_{\min}>0,
+\end{align*}
+if $\alpha_i>0$ then for $\Delta t>0$ the solution $u_{i,h}$ to the Algorithm \ref{Algn2} converges to the true solution with
+\begin{align}
+	\|u_i(T)-u_{i,h}^M\|+\Big\{\alpha_i\Delta t\sum\limits_{n=2}^M\|\nabla(u_i(t^n)-u_{i,h}^n)\|^2\Big\}^{1/2}\le C(h^k+\Delta t^2).
+\end{align}\label{Convergence-analysis-BDF-2}
+\end{Th}
+
+\begin{proof}
+At first we construct an error equation at the time step $t^{n+1}$, the continuous variational formulations can be written as $\forall v_{h}\in X_h$
+\begin{align}
+	\Bigg(&\frac{3u_{i}(t^{n+1})-4u_{i}(t^{n})+u_{i}(t^{n-1})}{2\Delta  t},v_{h}\Bigg)+\mathcal{D}_i\left(\nabla u_{i}(t^{n+1}),\nabla v_{h}\right)-\beta_i\left( u_{i}(t^{n+1})\nabla K(t^{n+1}),\nabla v_{h}\right)\nonumber\\
+	&=(1-\gamma_i)\left(r_i(t^{n+1})u_{i}(t^{n+1}),v_{h}\right)-\left(\frac{r_i(t^{n+1}) u_{i}(t^{n+1})}{K(t^{n+1})}\sum\limits_{j=1}^Nu_{j}(t^{n+1}),v_{h}\right)\nonumber\\
+	&+\left(\frac{3u_{i}(t^{n+1})-4u_{i}(t^{n})+u_{i}(t^{n-1})}{2\Delta  t}- u_{i,t}(t^{n+1}),v_{h}\right)+\left(f_i(t^{n+1}),v_{h}\right). \label{cont-weak-form2}
+\end{align}
+Subtract \eqref{disc-weak-form2} from \eqref{cont-weak-form2} and then rearranging yields
+\begin{align}
+	&\left(\frac{3e_{i}^{n+1}-4e_{i}^{n}+e_{i}^{n-1}}{2\Delta  t},v_{h}\right)+\mathcal{D}_i\left(\nabla e_{i}^{n+1},\nabla v_{h}\right)-\beta_i\left(e_{i}^{n+1}\nabla K(t^{n+1}),\nabla v_{h}\right)\nonumber\\
+	&-(1-\gamma_i)\left(r_i(t^{n+1})e_{i}^{n+1},v_{h}\right)+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}e_i^{n+1}(2u_{j,h}^n-u_{j,h}^{n-1}),v_{h}
+	\right)\nonumber\\
+	&+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}u_i(t^{n+1})(2e_{j}^n-e_{j}^{n-1}),v_{h}
+	\right)=G(t,u_i,v_{h}),
+	\label{error-equation2}
+\end{align}
+where\begin{align*}
+	G(t,u_i,v_{h}):=\left(\frac{3u_{i}(t^{n+1})-4u_{i}(t^{n})+u_{i}(t^{n-1})}{2\Delta  t}- u_{i,t}(t^{n+1}),v_{h}\right)\\-\left(\frac{r_i(t^{n+1}) u_{i}(t^{n+1})}{K(t^{n+1})}\sum\limits_{j=1}^N\big\{u_{j}(t^{n+1})-2u_{j}(t^{n})+u_j(t^{n-1})\big\},v_{h}\right).
+\end{align*}
+Now we decompose the errors and rewrite, then for $\forall v_{h}\in X_h$
+\begin{align}
+	\Bigg(&\frac{3\phi_{i,h}^{n+1}-4\phi_{i,h}^{n}+\phi_{i,h}^{n-1}}{2\Delta  t},v_{h}\Bigg)+\mathcal{D}_i\left(\nabla \phi_{i,h}^{n+1},\nabla v_{h}\right)-\beta_i\left( \phi_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla v_{h}\right)\nonumber\\
+	&-(1-\gamma_i)\left(r_i(t^{n+1})\phi_{i,h}^{n+1},v_{h}\right)
+	+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}\phi_{i,h}^{n+1}(2u_{j,h}^n-u_{j,h}^{n-1}),v_{h}
+	\right)\nonumber\\
+	&+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}u_i(t^{n+1})(2\phi_{j,h}^{n}-\phi_{j,h}^{n-1}),v_{h}
+	\right)=\mathcal{D}_i\left(\nabla \eta_{i}^{n+1},\nabla v_{h}\right)\nonumber\\
+	&-\beta_i\left(\eta_{i}^{n+1}\nabla K(t^{n+1}),\nabla v_{h}\right)-(1-\gamma_i)\left(r_i(t^{n+1})\eta_{i}^{n+1},v_{h}\right)\nonumber\\
+	&+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}\eta_i^{n+1}(2u_{j,h}^n-u_{j,h}^{n-1}),v_{h}
+	\right)\nonumber\\ 
+	&+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}u_i(t^{n+1})(2\eta_{j}^{n}-\eta_{j}^{n-1}),v_{h}
+	\right)-G(t,u_i,v_{h}).\label{phi-equation2}
+\end{align}
+Choose $v_{h}=\phi_{i,h}^{n+1}$, and use the polarization identity in \eqref{ident} to obtain
+\begin{align}
+	&\frac{1}{4\Delta t}\Big(\|\phi_{i,h}^{n+1}\|^2-\|\phi_{i,h}^{n}\|^2+\|2\phi_{i,h}^{n+1}-\phi_{i,h}^{n}\|^2-\|2\phi_{i,h}^{n}-\phi_{i,h}^{n-1}\|^2\nonumber\\
+	&+\|\phi_{i,h}^{n+1}-2\phi_{i,h}^{n}+\phi_{i,h}^{n-1}\|^2\Big)+\mathcal{D}_i\|\nabla \phi_{i,h}^{n+1}\|^2-\beta_i\left(\phi_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla \phi_{i,h}^{n+1}\right)\nonumber\\
+	&-(1-\gamma_i)\left(r_i(t^{n+1})\phi_{i,h}^{n+1},\phi_{i,h}^{n+1}\right)+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}\phi_{i,h}^{n+1}(2u_{j,h}^n-u_{j,h}^{n-1}),\phi_{i,h}^{n+1}
+	\right)\nonumber\\
+	&+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}u_i(t^{n+1})(2\phi_{j,h}^{n}-\phi_{j,h}^{n-1}),\phi_{i,h}^{n+1}
+	\right) \le\mathcal{D}_i\left(\nabla \eta_{i}^{n+1},\nabla \phi_{i,h}^{n+1}\right)\nonumber\\
+	&-\beta_i\left(\eta_{i}^{n+1}\nabla K(t^{n+1}),\nabla \phi_{i,h}^{n+1}\right)-(1-\gamma_i)\left(r_i(t^{n+1})\eta_{i}^{n+1},\phi_{i,h}^{n+1}\right)\nonumber\\
+	&+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}\eta_i^{n+1}(2u_{j,h}^n-u_{j,h}^{n-1}),\phi_{i,h}^{n+1}\right)\nonumber\\
+	&+\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}u_i(t^{n+1})(2\eta_{j}^{n}-\eta_{j}^{n-1}),\phi_{i,h}^{n+1}
+	\right)-G\left(t,u_i,\phi_{i,h}^{n+1}\right).\label{all-phi-2}
+\end{align}
+Now, we find the upper-bounds of terms in the above equation. Use H\"{o}lder's inequality, Sobolev embedding theorem, and Poincar\'e inequalities, to find 
+\begin{align*}
+	\left(\phi_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla\phi_{i,h}^{n+1}\right)&\le\|\phi_{i,h}^{n+1}\|_{L^3}\|\nabla K(t^{n+1})\|_{L^6}\|\nabla \phi_{i,h}^{n+1}\|\\&\le C\|\phi_{i,h}^{n+1}\|^{\frac12}\|\nabla\phi_{i,h}^{n+1}\|^{\frac{1}{2}}\|K(t^{n+1})\|_{H^2(\Omega)^d}\|\nabla \phi_{i,h}^{n+1}\|\\&\le C\|\nabla \phi_{i,h}^{n+1}\|^2\|K(t^{n+1})\|_{L^\infty\big(0,T;H^2(\Omega)^d\big)},\\
+	\left(\eta_{i}^{n+1}\nabla K(t^{n+1}),\nabla \phi_{i,h}^{n+1}\right)&\le\|\eta_{i}^{n+1}\|_{L^3}\|\nabla K(t^{n+1})\|_{L^6}\|\nabla \phi_{i,h}^{n+1}\|\\&\le C\|\nabla\eta_{i}^{n+1}\|\|K(t^{n+1})\|_{L^\infty\big(0,T;H^2(\Omega)^d\big)}\|\nabla \phi_{i,h}^{n+1}\|.
+\end{align*}
+Apply Young's inequality, to have
+\begin{align*}
+	\beta_i\left(\eta_{i}^{n+1}\nabla K(t^{n+1}),\nabla \phi_{i,h}^{n+1}\right)\le\frac{\alpha_i}{12}\|\nabla \phi_{i,h}^{n+1}\|^2+\frac{C\beta_i^2}{\alpha_i}\|\nabla\eta_{i}^{n+1}\|^2\|K\|_{\infty,2}^2.
+\end{align*}
+Using H\"older's, and Poincar\'e inequalities, we have
+\begin{align*}
+	(1-\gamma_i)\left(r_i(t^{n+1})\phi_{i,h}^{n+1},\phi_{i,h}^{n+1}\right)&\le|1-\gamma_i|\|r_i(t^{n+1})\|_{\infty}\| \phi_{i,h}^{n+1}\|^2\\&\le C |1-\gamma_i|\|r_i\|_{\infty,\infty}\|\nabla \phi_{i,h}^{n+1}\|^2.
+\end{align*}
+%Next, using triangle, H\"older's, and Poincar\'e inequalities together with the Assumption \ref{assumption-1}, we have
+%\begin{align*}
+%	-\sum\limits_{j=1}^N\left( \frac{r_i(t^{n+1}) }{K(t^{n+1})}\phi_{i,h}^{n+1}u_{j,h}^n,\phi_{i,h}^{n+1}\right)&\le\sum\limits_{j=1}^N\frac{\|r_i(t^{n+1})\|_{\infty}}{\inf\limits_\Omega\|K(t^{n+1})\|}\Big|\left(\phi_{i,h}^{n+1}u_{j,h}^n,\phi_{i,h}^{n+1}\right)\Big|\nonumber\\&\le\sum\limits_{j=1}^N\frac{\|r_i\|_{\infty,\infty}}{K_{\min}}\|u_{j,h}^{n}\|_\infty\|\phi_{i,h}^{n+1}\|^2\nonumber\\&\le\frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}
+%	\|\nabla\phi_{i,h}^{n+1}\|^2.
+%\end{align*} 
+Next, using triangle, H\"older's, and Poincar\'e inequalities together with the Lemma \ref{assumption-1}, we have
+\begin{align*}
+	-\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}\phi_{i,h}^{n+1}(2u_{j,h}^n-u_{j,h}^{n-1}),\phi_{i,h}^{n+1}
+	\right)&\le\sum\limits_{j=1}^N\Big\|\frac{r_i(t^{n+1})}{K(t^{n+1})}\Big\|_{\infty}\|2u_{j,h}^n-u_{j,h}^{n-1}\|_{\infty}\|\phi_{i,h}^{n+1}\|^2\\
+	&\le\frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}
+	\|\nabla\phi_{i,h}^{n+1}\|^2.
+\end{align*}
+With the assumption $\alpha_i>0$, use Cauchy-Schwarz, and Young's inequalities, to obtain
+\begin{align*}
+	\mathcal{D}_i\left(\nabla \eta_{i}^{n+1},\nabla \phi_{i,h}^{n+1}\right)\le \mathcal{D}_i\|\nabla \eta_{i}^{n+1}\|\|\nabla \phi_{i,h}^{n+1}\|\le\frac{\alpha_i}{12}\|\nabla \phi_{i,h}^{n+1}\|^2+\frac{3\mathcal{D}_i^2}{\alpha_i}\|\nabla \eta_{i}^{n+1}\|^2.
+\end{align*}
+Using H\"older's, and Poincar\'e inequalities, Lemma \ref{assumption-1}, and Young's inequality, we have
+\begin{align*}
+	(1-\gamma_i)\left(r_i(t^{n+1})\eta_{i}^{n+1},\phi_{i,h}^{n+1}\right)&\le|1-\gamma_i|\|r_i(t^{n+1})\|_\infty\|\eta_{i}^{n+1}\|\|\phi_{i,h}^{n+1}\|\\&\le C|1-\gamma_i|\|r_i\|_{\infty,\infty}\|\eta_{i}^{n+1}\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le\frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C(1-\gamma_i)^2\|r_i\|_{\infty,\infty}^2}{\alpha_i}\|\eta_{i}^{n+1}\|^2,\\
+	\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}\eta_{i}^{n+1} \big(2u_{j,h}^n-u_{j,h}^{n-1}\big),\phi_{i,h}^{n+1}\right)&\le\sum\limits_{j=1}^N\frac{\|r_i\|_{\infty,\infty}}{K_{\min}}\|\eta_{i}^{n+1}\|\|2u_{j,h}^n-u_{j,h}^{n-1}\|_{\infty}\|\phi_{i,h}^{n+1}\|\\&\le \sum\limits_{j=1}^N\frac{\|r_i\|_{\infty,\infty}}{K_{\min}}\|\eta_{i}^{n+1}\|\left(2\| u_{j,h}^n\|_\infty+\| u_{j,h}^{n-1}\|_\infty\right)\|\nabla\phi_{i,h}^{n+1}\|\\&\le \frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}\|\eta_{i}^{n+1}\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le \frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|^2_{\infty,\infty}}{\alpha_iK_{\min}^2}\|\eta_{i}^{n+1}\|^2.
+\end{align*}
+
+
+
+%Using H\"older's, Sobolev embedding theorem,  Poincar\'e, and Young's inequalities, we have
+%\begin{align*}
+%	(1-\gamma_i)\left(r_i(t^{n+1})\eta_{i}^{n+1},\phi_{i,h}^{n+1}\right)&\le|1-\gamma_i|\|r_i(t^{n+1})\|_{\infty}\|\eta_{i}^{n+1}\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le \frac{\alpha_i}{14}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{7(1-\gamma_i)^2\|r_i\|^2_{\infty,\infty}}{2\alpha_i}\|\eta_{i}^{n+1}\|^2.
+%\end{align*}
+%Using H\"older's inequality, and triangle inequality, Assumption \ref{assumption-1},  Poincar\'e, and  Young's inequalities, we obtain
+%\begin{align*}
+%	\sum\limits_{j=1}^N\left(\frac{r_i(t^{n+1})}{K(t^{n+1})}\eta_{i}^{n+1} \big(2u_{j,h}^n-u_{j,h}^{n-1}\big),\phi_{i,h}^{n+1}\right)&\le\sum\limits_{j=1}^N\frac{\|r_i\|_{\infty,\infty}}{K_{\min}}\|\eta_{i}^{n+1}\|\|2u_{j,h}^n-u_{j,h}^{n-1}\|_{\infty}\|\phi_{i,h}^{n+1}\|\\&\le \sum\limits_{j=1}^N\frac{\|r_i\|_{\infty,\infty}}{K_{\min}}\|\eta_{i}^{n+1}\|\left(2\| u_{j,h}^n\|_\infty+\| u_{j,h}^{n-1}\|_\infty\right)\|\nabla\phi_{i,h}^{n+1}\|\\&\le \frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}\|\eta_{i}^{n+1}\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le \frac{\alpha_i}{14}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|^2_{\infty,\infty}}{\alpha_iK_{\min}^2}\|\eta_{i}^{n+1}\|^2.
+%\end{align*}
+We have used H\"older's inequality, Sobolev embedding theorem,  Poincar\'e inequality, regularity assumption, and  Young's inequality, we have
+\begin{align*}
+	\sum\limits_{j=1}^N\bigg(&\frac{r_i(t^{n+1})}{K(t^{n+1})}u_i(t^{n+1})(2\eta_{j}^{n}-\eta_{j}^{n-1}),\phi_{i,h}^{n+1}\bigg)\\
+	&\le\sum\limits_{j=1}^N\frac{\|r_i\|_{\infty,\infty}}{K_{\min}}\|u_i(t^{n+1})\|_{L^6}\|2\eta_{j}^{n}-\eta_{j}^{n-1}\|\|\phi_{i,h}^{n+1}\|_{L^3}\\
+	&\le\sum\limits_{j=1}^N\frac{\|r_i\|_{\infty,\infty}}{K_{\min}}\|u_i(t^{n+1})\|_{H^1}\|2\eta_{j}^{n}-\eta_{j}^{n-1}\|\|\phi_{i,h}^{n+1}\|^{1/2}\|\nabla\phi_{i,h}^{n+1}\|^{1/2}\\
+	&\le\sum\limits_{j=1}^N\frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}\|u_i\|_{L^\infty\big(0,T;H^1(\Omega)^d\big)}\|2\eta_{j}^{n}-\eta_{j}^{n-1}\|\|\nabla\phi_{i,h}^{n+1}\|\\
+	&\le\frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{K_{\min}^2}\sum\limits_{j=1}^N\|2\eta_{j}^{n}-\eta_{j}^{n-1}\|^2.
+\end{align*}
+Using Taylor’s series, Cauchy-Schwarz and Young’s inequalities the last term is assessed as
+\begin{align*}
+	\Big|-G&\left(t,u_i,\phi_{i,h}^{n+1}\right)\Big|\le \Delta t^2\frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}\|u_i\|_{L^\infty\big(0,T;H^1(\Omega)^d\big)}\sum\limits_{j=1}^N\|u_{j,tt}\|_{L^\infty\big(0,T;L^2(\Omega)^d\big)}\|\nabla\phi_{i,h}^{n+1}\|\\&+C\Delta t^2\|u_{i,ttt}\|_{L^\infty\big(0,T;L^2(\Omega)^d\big)}\|\nabla\phi_{i,h}^{n+1}\|\le \frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\Delta t^4\|r_i\|_{\infty,\infty}^2}{\alpha_iK_{\min}^2}.
+\end{align*}
+%Using these estimates in \eqref{all-phi-2} and reducing yields
+%\begin{align}
+%	&\frac{1}{4\Delta t}\Big(\|\phi_{i,h}^{n+1}\|^2-\|\phi_{i,h}^{n}\|^2+\|2\phi_{i,h}^{n+1}-\phi_{i,h}^{n}\|^2-\|2\phi_{i,h}^{n}-\phi_{i,h}^{n-1}\|^2+\|\phi_{i,h}^{n+1}-2\phi_{i,h}^{n}+\phi_{i,h}^{n-1}\|^2\Big)\nonumber\\
+%	&+\frac{\alpha_i}{2}\|\nabla\phi_{i,h}^{n+1}\|^2\le \frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_iK_{\min}^2}\sum\limits_{j=1}^N\|2\phi_{j,h}^{n}-\phi_{j,h}^{n-1}\|^2+\frac{7\mathcal{D}_i^2}{2\alpha_i}\|\nabla \eta_{i}^{n+1}\|^2-\frac{7\beta_i^2}{2\alpha_i}\|\eta_{i}^{n+1}\|^2+\nonumber\\
+%	&\frac{7(1-\gamma_i)^2\|r_i\|^2_{\infty,\infty}}{2\alpha_i}\|\eta_{i}^{n+1}\|^2+\frac{C\|r_i\|^2_{\infty,\infty}}{\alpha_iK_{\min}^2}\|\eta_{i}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{K_{\min}^2}\sum\limits_{j=1}^N\|2\eta_{j}^{n}-\eta_{j}^{n-1}\|^2+\nonumber\\
+%	&\frac{C\Delta t^4\|r_i\|_{\infty,\infty}^2}{\alpha_iK_{\min}^2}\le C\sum\limits_{j=1}^N\|2\phi_{j,h}^{n}-\phi_{j,h}^{n-1}\|^2+Ch^{2k}+Ch^{2k+2}+C\Delta t^4.
+%\end{align}
+%
+%Now we want to find the upper-bound of \begin{align}    G(t,u_i,\phi_{i,h}^{n+1})=\left(\frac{u_{i}(t^{n+1})-u_{i}(t^{n})}{\Delta  t}- u_{i,t}(t^{n+1}),\phi_{i,h}^{n+1}\right)\nonumber\\+\left(\frac{r_i(t^{n+1}) u_{i}(t^{n+1})}{K(t^{n+1})}\sum\limits_{j=1}^N\big\{u_{j,h}^{n}-u_{j}(t^{n+1})\big\},\phi_{i,h}^{n+1}\right).\label{G-phi-2}
+	%\end{align}
+	%For some $t^*\in[t^n,t^{n+1}]$, we use Taylor's series expansion, Poincar\'e, Cauchy-Schwarz, and Young's inequalities to obtain the following bound for the first term on the right-hand-side of \eqref{G-phi-2}
+	%\begin{align*}
+	%	\left(\frac{u_{i}(t^{n+1})-u_{i}(t^{n})}{\Delta  t}- u_{i,t}(t^{n+1}),\phi_{i,h}^{n+1}\right)&=\frac{\Delta t}{2}\left(u_{i,tt}(t^*),\phi_{i,h}^{n+1}\right)\\&\le\frac{C\Delta t}{2}\left(u_{i,tt}(t^*),\nabla\phi_{i,h}^{n+1}\right)\\&\le\frac{C\Delta t}{2}\|u_{i,tt}(t^*)\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le\frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C(\Delta t)^2}{\alpha_i}\|u_{i,tt}(t^*)\|^2.
+	%\end{align*}
+	%We can find the upper-bound of the last term on the right-hand-side of \eqref{G-phi-2} using Taylor's series expansion, Poincar\'e, H\"older's, triangle, and Young's inequalities together with the regularity assumption as
+	%\begin{align*}
+	%	\Bigg(\frac{r_i(t^{n+1}) u_{i}(t^{n+1})}{K(t^{n+1})}&\sum\limits_{j=1}^N\big\{u_{j,h}^{n}-u_{j}(t^{n+1})\big\},\phi_{i,h}^{n+1}\Bigg)\\&\le \frac{C\|r_i(t^{n+1})\|_{\infty}}{\inf\limits_\Omega\|K(t^{n+1})\|}\sum\limits_{j=1}^N\left(|u_{i}(t^{n+1})\big\{u_{j,h}^{n}-u_{j}(t^{n+1})\big\}\phi_{i,h}^{n+1}|\right)\\&\le\frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}\|u_{i}(t^{n+1})\|_\infty\sum\limits_{j=1}^N\|u_{j,h}^{n}-u_{j}(t^{n+1})\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le\sum\limits_{j=1}^N\frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}\|u_{j,h}^{n}-u_{j}(t^{n+1})\|\|\nabla\phi_{i,h}^{n+1}\|\\&\le\sum\limits_{j=1}^N\left(\frac{\alpha_i}{12N}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_i K_{\min}^2}\|u_{j,h}^{n}-u_{j}(t^{n+1})\|^2\right)\\&\le \frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_i K_{\min}^2}\sum_{j=1}^N\big(\|u_{j,h}^{n}-u_j(t^n)\|^2+\|u_j(t^n)-u_j(t^{n+1})\|^2\big)\\&\le\frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_i K_{\min}^2}\sum_{j=1}^N\big(2\|\eta_j^n\|^2+2\|\phi_{j,h}^n\|^2+(\Delta t)^2\|u_{j,t}(s^*)\|^2\big)\\&\le\frac{\alpha_i}{12}\|\nabla\phi_{i,h}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_i K_{\min}^2}\big(h^{2k+2}+(\Delta t)^2\big)+\frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_i K_{\min}^2}\sum_{j=1}^N\|\phi_{j,h}^n\|^2,
+	%\end{align*}
+	%with $s^*\in[t^n,t^{n+1}]$.
+	%Thus, we have
+	%\begin{align*}   |G(t,u_i,\phi_{i,h}^{n+1})|\le\frac{\alpha_i}{6}\|\nabla\phi_{i,h}^{n+1}\|^2+C\big(h^{2k+2}+(\Delta t)^2\big)+C\sum_{j=1}^N\|\phi_{j,h}^n\|^2.
+	%\end{align*}
+	Using these estimates in \eqref{all-phi-2} and reducing yields
+	\begin{align}
+		&\frac{1}{4\Delta t}\Big(\|\phi_{i,h}^{n+1}\|^2-\|\phi_{i,h}^{n}\|^2+\|2\phi_{i,h}^{n+1}-\phi_{i,h}^{n}\|^2-\|2\phi_{i,h}^{n}-\phi_{i,h}^{n-1}\|^2+\|\phi_{i,h}^{n+1}-2\phi_{i,h}^{n}+\phi_{i,h}^{n-1}\|^2\Big)\nonumber\\
+		&+\frac{\alpha_i}{2}\|\nabla\phi_{i,h}^{n+1}\|^2\le \frac{C\|r_i\|_{\infty,\infty}^2}{\alpha_iK_{\min}^2}\sum\limits_{j=1}^N\|2\phi_{j,h}^{n}-\phi_{j,h}^{n-1}\|^2+\frac{3\mathcal{D}_i^2}{\alpha_i}\|\nabla \eta_{i}^{n+1}\|^2-\frac{C\beta_i^2}{\alpha_i}\|\nabla\eta_{i}^{n+1}\|^2\|K\|_{\infty,2}^2\nonumber\\
+		&+\frac{C(1-\gamma_i)^2\|r_i\|^2_{\infty,\infty}}{\alpha_i}\|\eta_{i}^{n+1}\|^2+\frac{C\|r_i\|^2_{\infty,\infty}}{\alpha_iK_{\min}^2}\|\eta_{i}^{n+1}\|^2+\frac{C\|r_i\|_{\infty,\infty}^2}{K_{\min}^2}\sum\limits_{j=1}^N\|2\eta_{j}^{n}-\eta_{j}^{n-1}\|^2\nonumber\\
+		&+\frac{C\Delta t^4\|r_i\|_{\infty,\infty}^2}{\alpha_iK_{\min}^2}\le C\sum\limits_{j=1}^N\|2\phi_{j,h}^{n}-\phi_{j,h}^{n-1}\|^2+Ch^{2k}+Ch^{2k+2}+C\Delta t^4.
+	\end{align}
+	Dropping non-negative term from left-hand-side, multiply both sides by $4\Delta t$, using $\|\phi_{i,h}^0\|=\|\phi_{i,h}^1\|=0$, and sum over the time-steps $n=1,2,\cdots,M-1$, we have
+	\begin{align}
+		\|\phi_{i,h}^{M}\|^2+\|2\phi_{i,h}^{M}-\phi_{i,h}^{M-1}\|^2+2\alpha_i\Delta t\sum\limits_{n=2}^M\|\nabla\phi_{i,h}^n\|^2\nonumber\\\le C\Delta t\sum\limits_{n=1}^{M-1}\sum\limits_{j=1}^N\|2\phi_{j,h}^{n}-\phi_{j,h}^{n-1}\|^2+C(h^{2k}+\Delta t^4).
+	\end{align}
+	Summing over $i=1,2,\cdots,N$, remove non-negative terms from left-hand-side, and reducing, gives
+	\begin{align*}
+		\sum\limits_{i=1}^N\|\phi_{i,h}^{M}\|^2+2\alpha_i\Delta t\sum\limits_{n=2}^M\sum\limits_{i=1}^N\|\nabla\phi_{i,h}^n\|^2\le C\Delta t\sum\limits_{n=2}^{M-1}\sum\limits_{i=1}^N\|\phi_{i,h}^n\|^2+C(h^{2k}+\Delta t^4).
+	\end{align*}
+	Applying the discrete Gr\"onwall Lemma \ref{dgl}, we have
+	\begin{align}
+		\sum\limits_{i=1}^N\|\phi_{i,h}^{M}\|^2+2\alpha_i\Delta t\sum\limits_{n=2}^M\sum\limits_{i=1}^N\|\nabla\phi_{i,h}^n\|^2\le C(h^{2k}+\Delta t^4),
+	\end{align}
+	for $i=1,2,\cdots,N$, which gives
+	\begin{align}
+		\|\phi_{i,h}^{M}\|^2+2\alpha_i\Delta t\sum\limits_{n=2}^M\|\nabla\phi_{i,h}^n\|^2\le C(h^{2k}+\Delta t^4).
+	\end{align}
+	The proof is completed by the use of the triangle and Young's inequalities, as well as the regularity assumption.
+\end{proof}
+
+\begin{comment}
+	Now we prove the assumption  $\|u_{i,h}^n\|_{\infty}\le C$ that was used in stability Theorems \ref{stability-theorm}-\ref{stability-theorm2}  and in convergence Theorems \ref{Convergence-analysis-BE}-\ref{Convergence-analysis-BDF-2} by the principle of mathematical induction. The technique this proof is based on Wong's notion in the analysis of three-species competition model \cite{wong2009analysis}. We define
+	\begin{align*}
+		M^*:=\max_{0\le n\le M}\|u_i(t^n)\|_{\infty}. 
+	\end{align*}
+	
+	\begin{Lemma}
+		If $u_i(0,{\bf x})$ is sufficiently regular for ${\bf x}\in\Omega$, then $\|u_{i,h}^n\|_{\infty}\le K^*$, $\forall n\in\mathbb{N}$, where $K^*$ is a positive constant.\label{lemma-discrete-bound}
+	\end{Lemma}
+	\begin{proof}
+		Basic step: $u_{i,h}^0=I_h(u_i(0,{\bf x})),$ where $I_h$ is an appropriate interpolation operator. Because of the regularity assumption of $u_i(0,{\bf x})$, we have $\|u_{i,h}^0\|_\infty\le K^*$, for some constant $K^*>0$.\\
+		Inductive step: Assume for some $L\in\mathbb{N}$ and $L<M$, $\|u_{i,h}^n\|_\infty\le K^*$ holds true for $n=0,1,\cdots,L$. Then we have
+		\begin{align*}
+			\|u_{i,h}^{L+1}\|_\infty&=\|u_{i,h}^{L+1}-u_i(t^{L+1})+u_i(t^{L+1})\|_{\infty}\\&\le\|u_{i,h}^{L+1}-u_i(t^{L+1})\|_{\infty}+\|u_i(t^{L+1})\|_{\infty}.
+		\end{align*}
+		Using Agmon’s inequality \cite{Robinson2016Three-Dimensional}, and discrete inverse inequality, yields
+		\begin{align*}
+			\|u_{i,h}^{L+1}\|_\infty&\le Ch^{-\frac{3}{2}}\|u_{i,h}^{L+1}-u_i(t^{L+1})\|+M^*\\&\le Ch^{-\frac{3}{2}}\left(\|\phi_{i,h}^{L+1}\|+\|\eta_i^{L+1}\|\right)+M^*\hspace{2mm}\text{(Triangle inequality)}.
+		\end{align*}
+		Use inductive hypothesis to get \eqref{bound-on-phi}, and  approximation property \eqref{AppPro3}, the above bound can be written as
+		\begin{align}
+			\|u_{i,h}^{L+1}\|_\infty\le C \big(h^{k-\frac{3}{2}}+h^{-\frac{3}{2}}\Delta t+h^{k-\frac{1}{2}}\big)+M^*.
+		\end{align}
+		We note that the above bound is independent of $L$, that is, the bound is not affected by time. For $k>3/2$, and sufficiently small $h$ and $\Delta t$ such that
+		\begin{align*}
+			h^{k-\frac32}\le\frac{1}{C}\hspace{2mm}\text{and}\hspace{2mm}\Delta t\le \frac{h^\frac{3}{2}}{C},
+		\end{align*}
+		we have 
+		\begin{align*}
+			\|u_{i,h}^{L+1}\|_\infty\le 3+M^*.
+		\end{align*}
+		Therefore, $\|u_{i,h}^{L+1}\|_\infty\le K^*$ holds also true for $K^*\ge 3+M^*$. Hence, by the principle of strong mathematical induction, $\|u_{i,h}^n\|_\infty\le K^*$ holds true  $\forall n\in\mathbb{N}$.
+	\end{proof}
+\end{comment}
+
+
+Now we prove the assumption  $\|u_{i,h}^n\|_{\infty}\le C$ that was used in stability Theorems \ref{stability-theorm}-\ref{stability-theorm2}  and in convergence Theorems \ref{Convergence-analysis-BE}-\ref{Convergence-analysis-BDF-2} by the principle of mathematical induction. The technique this proof is based on Wong's notion in the analysis of three-species competition model \cite{wong2009analysis}. We define
+\begin{align*}
+	M^*:=\max_{0\le n\le M}\|u_i(t^n)\|_{\infty}. 
+\end{align*}
+
+\begin{Lemma}
+	If $u_i(0,\bx)$ is sufficiently regular for $\bx\in\Omega$, then $\|u_{i,h}^n\|_{\infty}\le K^*$, $\forall n\in\mathbb{N}$, where $K^*$ is a positive constant.\label{lemma-discrete-bound}
+\end{Lemma}
+\begin{proof}
+	Basic step: $u_{i,h}^0=I_h(u_i(0,\bx)),$ where $I_h$ is an appropriate interpolation operator. Because of the regularity assumption of $u_i(0,\bx)$, we have $\|u_{i,h}^0\|_\infty\le K^*$, for some constant $K^*>0$.\\
+	Inductive step: Assume for some $L\in\mathbb{N}$ and $L<M$, $\|u_{i,h}^n\|_\infty\le K^*$ holds true for $n=0,1,\cdots,L$. Then we have
+	\begin{align*}
+		\|u_{i,h}^{L+1}\|_\infty&=\|u_{i,h}^{L+1}-u_i(t^{L+1})+u_i(t^{L+1})\|_{\infty}\\&\le\|u_{i,h}^{L+1}-u_i(t^{L+1})\|_{\infty}+\|u_i(t^{L+1})\|_{\infty}.
+	\end{align*}
+	Using Agmon’s inequality \cite{Robinson2016Three-Dimensional}, and discrete inverse inequality, yields
+	\begin{align*}
+		\|u_{i,h}^{L+1}\|_\infty&\le Ch^{-\frac{3}{2}}\|u_{i,h}^{L+1}-u_i(t^{L+1})\|+M^*\\&\le Ch^{-\frac{3}{2}}\left(\|\phi_{i,h}^{L+1}\|+\|\eta_i^{L+1}\|\right)+M^*\hspace{2mm}\text{(Triangle inequality)}.
+	\end{align*}
+	Use inductive hypothesis to get \eqref{bound-on-phi}, and  approximation property \eqref{AppPro3}, the above bound can be written as
+	\begin{align}
+		\|u_{i,h}^{L+1}\|_\infty\le C \big(h^{k-\frac{3}{2}}+h^{-\frac{3}{2}}\Delta t+h^{k-\frac{1}{2}}\big)+M^*.
+	\end{align}
+	We note that the above bound is independent of $L$, that is, the bound is not affected by time. For $k>3/2$, and sufficiently small $h$ and $\Delta t$ such that
+	\begin{align*}
+		h^{k-\frac32}\le\frac{1}{C}\hspace{2mm}\text{and}\hspace{2mm}\Delta t\le \frac{h^\frac{3}{2}}{C},
+	\end{align*}
+	we have 
+	\begin{align*}
+		\|u_{i,h}^{L+1}\|_\infty\le 3+M^*.
+	\end{align*}
+	Therefore, $\|u_{i,h}^{L+1}\|_\infty\le K^*$ holds also true for $K^*\ge 3+M^*$. Hence, by the principle of strong mathematical induction, $\|u_{i,h}^n\|_\infty\le K^*$ holds true  $\forall n\in\mathbb{N}$.
+\end{proof}
+%
+%
+\section{Numerical tests}
+Several numerical tests are conducted in this section to corroborate theoretical findings and provide an explanation of the effect of various parameters observed in the simulated results. We have utilised structured triangular meshes and the $\mathbb{P}_2$ element for the finite element simulation in all of the experiments. \jaman{The codes were written in the finite element plateform Freefem++ \cite{hecht2012new} and direct solver UMFPACK \cite{davis2004algorithm} was used.}
+\subsection{Convergence rate verification} Define the global error $e_i:=u_i-u_{i,h}$ and its $L^2$-$H^1$ norm as $\|e_i\|_{2,1}:=\|e_i\|_{L^2\big(0,T;H^1(\Omega)^d\big)}$, and use the following approximation $$\|e_i\|_{2,1}\approx\sqrt{\sum_{n=1}^M\Delta t\|e_i^n\|^2_{H^1(\Omega)^d}}.$$  We have seen from the convergence analysis that the predicted error of the Algorithm \ref{Algn1} and \ref{Algn2} and  for $\mathbb{P}_2$ finite element are
+\begin{align}
+	\|u_i-u_{i,h}\|_{2,1}&\le C(h^2+\Delta t),\hspace{2mm}\text{and}\label{error-estimate-BE}\\
+	\|u_i-u_{i,h}\|_{2,1}&\le C(h^2+\Delta t^2),\hspace{1mm}i=1,2,\cdots,N,\label{error-estimate-BDF-2}
+\end{align}
+respectively. To verify the above convergence rates, we consider a domain $\Omega=(0,1)\times (0,1)$, where three species compete in a heterogeneous environment, thus $N=3$. We plugin manufactured analytical solutions in \eqref{forcing-function}, and obtain $f_i(t,\bx)$, for $i=\overline{1,3}$ as below:
+\begin{align}
+	f_i(t,\bx)=\mathcal{D}_i\Delta u_i-\beta_i\nabla\cdot(u_i\nabla K)+r_iu_i\left(1-\gamma_i-\frac{1}{K}\sum\limits_{j=1}^N u_j\right),\label{forcing-function}
+\end{align}
+together with
+\begin{align*}
+	u_1(t,\bx) &= \big(1.1 + \sin(t)\big)(2.0 + \sin(y)),\\
+	u_2(t,\bx) &=  \big(2.0 + \cos(t)\big)\big(1.1+\cos(x)\big),\\
+	u_3(t,\bx)&=\big(1.1+\sin(t)\big)\big(1.1+\cos(y)\big),\\
+	K(t,\bx)&=((2.1+\cos(x)\cos(y))(1.1+\cos(t)),\\
+	r_i(t,\bx)&=(1.5+\sin(x)\sin(y))(1.2+\sin(t)).
+\end{align*}
+
+\begin{table}[H]
+	\begin{center}
+		\small\begin{tabular}{|c|c|c|c|c|c|c|}\hline
+			\multicolumn{2}{|c}{DBE scheme}&\multicolumn{5}{|c|}{Errors and convergence rates (fixed $T=0.001$, $\Delta t=T/8$)}\\ \hline
+			$h$ & $\|e_1\|_{2,1}$ & rate   &$\|e_2\|_{2,1}$ & rate &$\|e_3\|_{2,1}$ & rate \\ \hline
+			$1/4$ & 2.1871e-5 & & 3.6321e-5 &  & 1.3318e-5 &\\ \hline
+			$1/8$ & 5.4646e-6    &2.00& 9.1122e-6    &1.99    &3.3413e-6    &1.99\\ \hline
+			$1/16$ & 1.3660e-6    &2.00& 2.2800e-6    &2.00    &8.3606e-7    &2.00\\ \hline
+			$1/32$ & 3.4147e-7    &2.00& 5.7012e-7    &2.00    &2.0906e-7    &2.00\\\hline
+			$1/64$ & 8.5366e-8    &2.00& 1.4254e-7    &2.00    &5.2269e-8    &2.00\\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{\footnotesize Three-species model: Spatial errors and convergence rates with $\gamma_1=0.001$, $\gamma_2=0.0006$, and $\gamma_3=0.0$.} \label{spatial-convergence-N-3-BE}
+\end{table}
+
+The produced solution serves as the Dirichlet boundary condition for this experiment, with the following coefficients: For $i=\overline{1,3}$, $d_i=1$ for diffusion, $\beta_i=1.0$ for advection, and $\gamma_1=0.001$, $\gamma_2=0.0006$, and $\gamma_3=0.0$ for harvesting. Next, we compare the computed solutions from the Algorithms \ref{Algn1} and \ref{Algn2} with the above manufactured analytical solution.  
+
+In order to quantify the efficiency of the algorithms, we compute the rates of convergences. For spatial convergence, we keep a fixed but small simulation end time $T=0.001$, run the simulations with progressively decreasing the mesh size $h$ by a factor of 2, and record the errors. However, in order to demonstrate the temporal convergence, we run the simulations with a fixed tiny mesh size of $h=1/64$, a progressively refined time-step size $\Delta t$ by a factor of 2, and record the errors.  
+Table \ref{spatial-convergence-N-3-BE}-\ref{spatial-convergence-N-3-BDF2} represent the spatial errors and convergence rates, revealing second-order spatial convergence across all three species densities for both algorithms, which is consistent with the theoretical results in \eqref{error-estimate-BE}-\eqref{error-estimate-BDF-2}. Additionally, Table \ref{temporal-convergence-N3-BE}-\ref{temporal-convergence-N3-BDF2} present the three species temporal errors and convergence rates, indicating first-order and secon-order convergence of the DBE, and DBDF-2 scheme, respectively, which are consistent with the priori error estimate given in \eqref{error-estimate-BE}-\eqref{error-estimate-BDF-2}.
+
+\begin{table}[H]
+	\begin{center}
+		\small\begin{tabular}{|c|c|c|c|c|c|c|}\hline
+			\multicolumn{2}{|c}{DBDF-2 scheme}&\multicolumn{5}{|c|}{Errors and convergence rates (fixed $T=0.001$, $\Delta t=T/16$)}\\\hline
+			$h$ & $\|e_1\|_{2,1}$ & rate   &$\|e_2\|_{2,1}$ & rate &$\|e_3\|_{2,1}$ & rate \\ \hline
+			$1/4$ & 2.0459e-5 & & 3.3976e-5 &  & 1.2459e-5 & \\ \hline
+			$1/8$ & 5.1118e-6    &2.00& 8.5239e-6    &1.99    &3.1256e-6    &1.99\\ \hline
+			$1/16$ & 1.2778e-6    &2.00& 2.1328e-6    &2.00    &7.8209e-7    &2.00\\ \hline
+			$1/32$ & 3.1942e-7    &2.00& 5.3331e-7    &2.00    &1.9556e-7    &2.00\\ \hline
+			$1/64$ & 7.9850e-8    &2.00&  1.3333e-7    &2.00    &4.8890e-8    &2.00\\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{\footnotesize Three-species model: Spatial errors and convergence rates with $\gamma_1=0.001$, $\gamma_2=0.0006$, and $\gamma_3=0.0$.} \label{spatial-convergence-N-3-BDF2}
+\end{table}
+
+
+\begin{table}[H]
+	\begin{center}
+		\small\begin{tabular}{|c|c|c|c|c|c|c|}\hline
+			\multicolumn{2}{|c}{DBE scheme}&\multicolumn{5}{|c|}{Temporal convergence (fixed $h = 1/64$)}\\\hline
+			$\Delta t$ & $\|e_1\|_{2,1}$ & rate   &$\|e_2\|_{2,1}$ & rate &$\|e_3\|_{2,1}$ & rate  \\ \hline
+			$T/4$ & 5.5489e-1 & & 7.5417e-1 &  & 4.3128e-1 &\\ \hline
+			$T/8$ & 2.2273e-1    &1.32& 3.2590e-1    &1.21    &1.7299e-1    &1.32\\ \hline
+			$T/16$ & 1.0245e-1    &1.12& 1.5380e-1    &1.08    &7.9560e-2    &1.12\\ \hline
+			$T/32$ & 4.9472e-2    &1.05& 7.5182e-2    &1.03    &3.8416e-2    &1.05\\ \hline
+			$T/64$ & 2.4367e-2    &1.02& 3.7276e-2    &1.01    &1.8922e-2    &1.02\\ \hline
+			$T/128$ & 1.2103e-2    &1.01& 1.8582e-2    &1.00    &9.3983e-3    &1.01\\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{\footnotesize Three-species model: Temporal convergence with $\gamma_1=0.001$, $\gamma_2=0.0006$, and $\gamma_3=0.01$.}\label{temporal-convergence-N3-BE}
+\end{table}
+
+\begin{table}[H]
+	\begin{center}
+		\small\begin{tabular}{|c|c|c|c|c|c|c|}\hline
+			\multicolumn{2}{|c}{DBDF-2 scheme}&\multicolumn{5}{|c|}{Errors and convergence rates (fixed $h = 1/128$)}\\\hline
+			$\Delta t$ & $\|e_1\|_{2,1}$ & rate   &$\|e_2\|_{2,1}$ & rate &$\|e_3\|_{2,1}$ & rate  \\ \hline
+			$T/4$ & 4.2383e-1 & & 6.4258e-1 &  & 3.2889e-1 &\\ \hline
+			$T/8$ & 8.9251e-2    &2.25& 1.5478e-1    &2.05    &6.8971e-2    &2.25\\ \hline
+			$T/16$ & 2.1659e-2    &2.04& 3.9555e-2    &1.97    &1.6707e-2    &2.05\\ \hline
+			$T/32$ & 5.5089e-3    &1.98& 1.0285e-2    &1.94    &4.2421e-3    &1.98\\ \hline
+			$T/64$ & 1.4050e-3    &1.97& 2.6519e-3    &1.96    &1.0800e-3    &1.97\\ \hline
+			$T/128$ & 3.5669e-4    &1.98& 6.7677e-4    &1.97    &2.7366e-4    &1.98\\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{\footnotesize Three-species model: Temporal convergence with $\gamma_1=0.001$, $\gamma_2=0.0006$, and $\gamma_3=0.01$.} \label{temporal-convergence-N3-BDF2}
+\end{table}
+
+
+
+%
+%\iffalse
+%\newpage
+%\section{Numerical Tests}\label{numerical-experiments}
+\clearpage
+
+In all the tests henceforth, we consider the DBDF-2 scheme with time-step size $\Delta t=0.1$, and initial density ${u}^0_{i,h}=1.6$. In each of the test, we consider either the following non-stationary carrying capacity
+$$K(t,\bx)\equiv\big(1.2+2.5\pi^2e^{-(x-0.5)^2-(y-0.5)^2}\big)\big(1.0+0.3\cos(t)\big),$$
+or the stationary carrying capacity
+$$K(t,\bx)\equiv1.2+2.5\pi^2e^{-(x-0.5)^2-(y-0.5)^2}.$$
+We use the non-stationary carrying capacity for the simulations, unless otherwise stated. To have a second required initial condition of the DBDF-2 scheme, we run DBE scheme.
+
+\subsection{Two species competition model: Effect of advection on the evolution of population density}
+In this example, we consider the model for two species populations in absence of harvesting (e.g., $\gamma_i=0$). We want to examine how the average population density of a species changes with the advection parameter. We plot the average density versus time in Figure \ref{2S: RDE-energy-b1_0_001_b2_0_01} for both species varying the advection parameters as $\beta_i=0.001, \text{and}\ 0.1$ for $i = 1, 2$. Figure \ref{2S: RDE-energy-b1_0_001_b2_0_01} suggests that the initial value is not important to the final state due to the global convergence of solutions. We observe that as the advection parameter increases, the species density decreases over time. The species with lower advection rate will converge to the stable solution faster and there is a strong co-existence of both the species. Figure \ref{2S: RDE-energy-b1_0_001_b2_0_01}(a), (b)  are plotted for the same data, but for short and long time scenarios. Figure \ref{2S: RDE-energy-b1_0_001_b2_0_01_K_stationary} is plotted for stationary carrying capacity.
+
+\begin{figure} [H]
+	\centering
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_short_d1_0_1_d2_0_1_g1_0_0_g2_0_0_b1_0_001_b2_0_01.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_long_d1_0_1_d2_0_1_g1_0_0_g2_0_0_b1_0_001_b2_0_01.eps}}
+	\caption{Average density of each species: (a) short-, and  (b) long-range with the advection coefficients $\beta_1=0.001$, and $\beta_2=0.01$, intrinsic growth rates $r_i=1$, and harvesting coefficients $\gamma_i=0.0$, for $i=\overline{1,2}$.}	\label{2S: RDE-energy-b1_0_001_b2_0_01}
+\end{figure}
+
+\begin{figure} [H]
+	\centering
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_short_d1_0_1_d2_0_1_g1_0_0_g2_0_0_b1_0_001_b2_0_01_K_stationary.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_long_d1_0_1_d2_0_1_g1_0_0_g2_0_0_b1_0_001_b2_0_01_K_stationary.eps}}
+	\caption{Average density of each species: (a) short-, and  (b) long-range with the advection coefficients $\beta_1=0.001$, and $\beta_2=0.01$, intrinsic growth rates $r_i=1$, harvesting coefficients $\gamma_i=0.0$, for $i=\overline{1,2}$, and stationary carrying capacity.}	\label{2S: RDE-energy-b1_0_001_b2_0_01_K_stationary}
+\end{figure}
+%\newpage
+
+\subsection{Two species competition model: Effect of harvesting on the evolution of population density}
+For this experiment, we consider constant intrinsic growth rates $ r_i \equiv 1 $, advection rates $ \beta_i = 0 $,
+for i = 1, 2, and the harvesting coefficients $\gamma_1 = 0.001$, and $\gamma_2=0.01$.
+In Figures \ref{2S: RDE-energy-g1_0_001_g2_0_01}(a), the average density of each species versus time is plotted for time $t = 0$ to $ 80 $. From the average density plot, we observe periodic population densities for both species, where the density of $u_2$ is decreasing because of its higher harvesting coefficient (Figure \ref{2S: RDE-energy-g1_0_001_g2_0_01}(a)). It is predicted that the species $ u_2 $ will die out if time is too large (Figure \ref{2S: RDE-energy-g1_0_001_g2_0_01}(b)).
+\begin{figure} [H]
+	\centering
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_short_d1_0_1_d2_0_1_g1_0_0001_g2_0_01_b1_0_0_b2_0_0.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_long_d1_0_1_d2_0_1_g1_0_0001_g2_0_01_b1_0_0_b2_0_0.eps}}
+	\caption{Average density of each species: (a) short-, and  (b) long-range with the harvesting coefficients $\gamma_1=0.001$, and $\gamma_2=0.01$, intrinsic growth rates $r_i=1$, and advection coefficients $\beta_i=0.0$, for $i=\overline{1,2}$.}	\label{2S: RDE-energy-g1_0_001_g2_0_01}
+\end{figure}
+
+If we further consider the harvesting coefficients as $\gamma_1 = 0.001$, and $\gamma_2=0.01$ (no harvesting) and plot the average density curves versus time for each species in Figure \ref{2S: RDE-energy-g1_0_001_g2_0}, we observe an evolutionary population density feature, especially for the first species. The harvesting in the second species provides an advantage to the first species, and thus an apparent co-existence of both species is visible over the time [0, 80] (Figure \ref{2S: RDE-energy-g1_0_001_g2_0}(a)). Figure \ref{2S: RDE-energy-g1_0_001_g2_0}(b) represents the average density of each of both species on the time interval [1000, 1080], where only the first species is affected by harvesting with coefficient $\gamma_1 = 0.001 $ and it will extinct over time. 
+\begin{figure} [H]
+	\centering
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_short_d1_0_1_d2_0_1_g1_0_0001_g2_0_b1_0_0_b2_0_0.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_long_d1_0_1_d2_0_1_g1_0_0001_g2_0_b1_0_0_b2_0_0.eps}}
+	\caption{Average density of each species: (a) short-, and  (b) long-range with the advection coefficients $\gamma_1=0.001$, and $\gamma_2=0.0$, intrinsic growth rates $r_i=1$, and harvesting coefficients $\beta_i=0.0$, for $i=\overline{1,2}$.}	\label{2S: RDE-energy-g1_0_001_g2_0}
+\end{figure}
+It is observed from Figure \ref{2S: RDE-energy-g1_0_001_g2_0_K_stationary} that for stationary carrying capacity the species with lower harvesting rate will win the competition and for short time period there exists a co-existence between them. On the other hand for long time period the species with higher harvesting rate will extinct.
+\begin{figure} [H]
+	\centering
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_short_d1_0_1_d2_0_1_g1_0_001_g2_0_01_b1_0_0_b2_0_0_K_stationary.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_long_d1_0_1_d2_0_1_g1_0_001_g2_0_01_b1_0_0_b2_0_0_K_stationary.eps}}
+	\caption{Average density of each species: (a) short-, and  (b) long-range with the harvesting coefficients $\gamma_1=0.001$, and $\gamma_2=0.0$, intrinsic growth rates $r_i=1$, advection coefficients $\beta_i=0.0$, for $i=\overline{1,2}$, and stationary carrying capacity.}	\label{2S: RDE-energy-g1_0_001_g2_0_K_stationary}
+\end{figure}
+\subsection{Three species competition model: Evolution of Population Density with Varying Advection Coefficients}\label{exp-2}
+In this test, we consider  constant intrinsic growth rates $r_i=1.0$, diffusion coefficients $\mathcal{D}_i=1.0$, harvesting coefficients $\gamma_i=0.001$,  $i=\overline{1,3}$ and varying advection coefficients $\beta_1=0.2$, $\beta_2=0.08$, and $\beta_3=0.001$, and run the simulation until $T=80$. In Figure \ref{RDE-energy-beta_0_2_beta_0_08_beta_0_001-K-time-exp}(a), we represent the average population density over time.
+In Figures \ref{RDE-energy-beta_0_2_beta_0_08_beta_0_001-K-time-exp}, the average density of each species versus time is plotted for time $ t = 0 $ to $ 80 $, and the population density contour plot of each of the species at time $ t = 80 $. From the average density plot, we observe periodic population densities for all species, where the density of $ u_1 $ is decreasing because of its higher advection coefficient (Figure \ref{RDE-energy-beta_0_2_beta_0_08_beta_0_001-K-time-exp}(a)). It is predicted that the species $ u_1 $ will die out if time is too large. From the contour plots, it is observed that the highest population density is at the point $ (0.5, 0.5) $ and there is a coexistence of all species, though the population density of the species $ u_3 $ remains bigger than the species $ u_2 $, and $ u_1 $ over the domain (Figure \ref{RDE-energy-beta_0_2_beta_0_08_beta_0_001-K-time-exp}(b)-(d)). This happens because of different advection parameters, and the optimal value of the carrying capacity function is achieved at the point $ (0.5, 0.5) $, which shows the symmetric distribution of the population.
+%
+%
+%
+
+\begin{figure} [H]
+	\centering
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{avg_d1_1_d2_1_d3_1_g1_0_001_g2_0_001_g3_0_001_b1_0_2_b2_0_08_b3_0_001.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ARDE-u-1-T-80-time-exp-K.eps}}\\
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ARDE-u-2-T-80-time-exp-K.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ARDE-u-3-T-80-time-exp-K.eps}}
+	\caption{ (a) Average density of each species,   (b) contour plot of species density $u_1$, (c) contour plot of species density $u_2$, and (d) contour plot of species density $u_3$ with the advection coefficients $\beta_1=0.2$, $\beta_2=0.08$, and $\beta_3=0.001$, diffusion coefficients $\mathcal{D}_i=1$, $r_i=1$, and harvesting coefficients $\gamma_i=0.001$, $i=1,2,3$.}	\label{RDE-energy-beta_0_2_beta_0_08_beta_0_001-K-time-exp}
+\end{figure}
+
+%\newpage
+\subsection{Three species competition model: Evolution of Population Density with Varying Harvesting Coefficients}
+In this test, we consider  constant intrinsic growth rates $r_i=1.0$, diffusion coefficients $\mathcal{D}_i=1.0$, advection coefficients $\beta_i=0.001$,  $i=\overline{1,3}$ and varying harvesting coefficients $\gamma_1=0.0009$, $\gamma_2=0.0036$, and $\gamma_3=0.0072$, and run the simulation until $T=80$. In Figure \ref{RDE-energy-g1_0_0009_g2_0_0036_g3_0_0072-K-time-exp}(a), we represent the average population density over time.
+In Figures \ref{RDE-energy-g1_0_0009_g2_0_0036_g3_0_0072-K-time-exp}, the average density of each species versus time is plotted for time $ t = 0 $ to $ 80 $, and the population density contour plot of each of the species at time $ t = 80 $. From the average density plot, we observe periodic population densities for all species, where the density of $ u_3 $ is decreasing because of its higher harvesting coefficient (Figure \ref{RDE-energy-g1_0_0009_g2_0_0036_g3_0_0072-K-time-exp}(a)). It is predicted that the species $ u_3 $ will die out if time is too large. From the contour plots, it is observed that the highest population density is at the point $ (0.5, 0.5) $ and there is a coexistence of all species, though the population density of the species $ u_1 $ remains bigger than the species $ u_2 $, and $ u_3 $ over the domain (Figure \ref{RDE-energy-g1_0_0009_g2_0_0036_g3_0_0072-K-time-exp}(b)-(d)). This happens because of different harvesting parameters, and the optimal value of the carrying capacity function is achieved at the point $ (0.5, 0.5) $, which shows the symmetric distribution of the population. Because of the reduction in the population density of the third species, the other species get more resources to grow, and a significant boost is observed in the second species’ density and a considerable amount of density increment is observed in the first species.
+%
+%
+%
+\begin{figure} [H]
+	\centering
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{avg_d1_1_d2_1_d3_1_g1_0_0009_g2_0_0036_g3_0_0072_b1_0_001_b2_0_001_b3_0_001.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ARDE-u-1-T-80-time-exp-K-g-varies.eps}}\\
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ARDE-u-2-T-80-time-exp-K-g-varies.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ARDE-u-3-T-80-time-exp-K-g-varies.eps}}
+	\caption{ (a) Average density of each species,   (b) contour plot of species density $u_1$, (c) contour plot of species density $u_2$, and (d) contour plot of species density $u_3$ with the harvesting coefficients $\gamma_1=0.0009$, $\gamma_2=0.0036$, and $\gamma_3=0.0072$, diffusion coefficients $\mathcal{D}_i=1$, $r_i=1$, and advection coefficients $\beta_i=0.001$, $i=\overline{1,3}$.}	\label{RDE-energy-g1_0_0009_g2_0_0036_g3_0_0072-K-time-exp}
+\end{figure}
+Because of the periodic resource function, we observe periodic behavior in all the population densities (Figure \ref{RDE-energy-g1_0_0009_g2_0_0025_g3_0_005-K-time-ex}). From both of the plots in Figure \ref{RDE-energy-g1_0_0009_g2_0_0025_g3_0_005-K-time-ex}(a), (b), we observe that as the harvesting parameter increases, the species density decreases over time. The species with lower harvesting rate will converge to the stable solution faster. Figure \ref{RDE-energy-g1_0_0009_g2_0_0025_g3_0_005-K-time-ex}(a), (b) are plotted for the same data, but for short and long time scenarios. We observe that the species with the highest harvesting rate is extinct, whereas the species with the lowest harvesting rate is the winner over the other species. In summary, the species with lower harvesting rate is the sole winner for multiple population competition and is independent of any choice of equal intrinsic growth rate and the initial population size.
+\begin{figure} [H]
+	\centering
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{avg_short_d1_0_001_d2_0_001_d3_0_001_g1_0_0009_g2_0_0025_g3_0_005_b1_0_001_b2_0_001_b3_0_001.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{avg_long_d1_0_001_d2_0_001_d3_0_001_g1_0_0009_g2_0_0025_g3_0_005_b1_0_001_b2_0_001_b3_0_001.eps}}
+	\caption{ Average density of each species: (a) short-, and  (b) long-range with the harvesting coefficients $\gamma_1=0.0009$, $\gamma_2=0.0025$, and $\gamma_3=0.005$, diffusion coefficients $d_i=0.001$, advection coefficients $\beta_i=0.001$, and intrinsic growth rate $r_i=1.1+0.75\cos(x)\cos(y)$, for $i=\overline{1,3}$.}	\label{RDE-energy-g1_0_0009_g2_0_0025_g3_0_005-K-time-ex}
+\end{figure}
+%\newpage
+\subsection{Three species competition model: Evolution of Population Density with Varying Diffusion Coefficients}\label{exp-4}
+In this test, we consider  constant intrinsic growth rates $r_i=1.0$, advection coefficients $\beta_i=0.001$, varying harvesting coefficients $\gamma_i=0.009, 0.0036, 0.0072$,  $i=\overline{1,3}$ and diffusion coefficients $\mathcal{D}_1=0.1$, $\mathcal{D}_2=0.02$, and $\mathcal{D}_3=0.01$, and run the simulation until $T=80$. In Figure \ref{RDE-energy-d1_0_1_d2_0_002_d3_0_001-K-time-exp}, we represent the average population density over time.
+%
+%
+%
+%
+In Figures \ref{RDE-energy-d1_0_1_d2_0_002_d3_0_001-K-time-exp}(a), the average density of each species versus time is plotted for time $ t = 0 $ to $ 80 $. From the average density plot, we observe periodic population densities for all species, where the density of $ u_1 $ is decreasing because of its higher diffusion coefficient 
+(Figure \ref{RDE-energy-d1_0_1_d2_0_002_d3_0_001-K-time-exp}(a)). It is predicted that the species $ u_1 $ will die out if time is too large.
+\begin{figure} [H]
+	\centering
+		\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{avg_short_d1_0_1_d2_0_02_d3_0_01_g1_0_0_g2_0_0_g3_0_0_b1_0_0007_b2_0_0007_b3_0_0007.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{avg_long_d1_0_1_d2_0_02_d3_0_01_g1_0_0_g2_0_0_g3_0_0_b1_0_0007_b2_0_0007_b3_0_0007.eps}}
+	\caption{Average density of each species: (a) short range, and  (b) long range with the harvesting coefficients $\gamma_1=0.0009$, $\gamma_2=0.0036$, and $\gamma_3=0.0072$, constant intrinsic growth rates $r_i=1$, and advection coefficients $\beta_i=0.001$, for $i=\overline{1,3}$.}	\label{RDE-energy-d1_0_1_d2_0_002_d3_0_001-K-time-exp}
+\end{figure}
+Because of the periodic resource function, we observe periodic behavior in all the population densities (Figure \ref{RDE-energy-d1_0_1_d2_0_002_d3_0_001-r-var}). From both of the plots in Figure \ref{RDE-energy-d1_0_1_d2_0_002_d3_0_001-r-var}(a), (b), we observe that as the diffusion parameter increases, the species density decreases over time. The species with lower diffusion rate will converge to the stable solution faster. Figure \ref{RDE-energy-d1_0_1_d2_0_002_d3_0_001-r-var}(a), (b) are plotted for the same data, but for short and long time scenarios. We observe that the species with the highest diffusion rate is extinct, whereas the species with the lowest diffusion rate is the winner over the other species. In summary, the species with lower diffusion rate is the sole winner for multiple population competition and is independent of any choice of equal intrinsic growth rate and the initial population size.
+%\clearpage
+\begin{figure} [H]
+	\centering
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_r_var_short_d1_0_1_d2_0_02_d3_0_01_g1_0_0009_g2_0_0036_g3_0_0072_b1_0_001_b2_0_001_b3_0_001.eps}}
+	\subfloat[]{\includegraphics[width=0.5\textwidth,height=0.3\textwidth]{ave_r_var_long_d1_0_1_d2_0_02_d3_0_01_g1_0_0009_g2_0_0036_g3_0_0072_b1_0_001_b2_0_001_b3_0_001.eps}}
+	\caption{Average density of each species: (a) short-, and  (b) long-range with the harvesting coefficients $\gamma_1=0.0009$, $\gamma_2=0.0036$, and $\gamma_3=0.0072$, constant intrinsic growth rates $r_i=1.1+0.75\cos(x)\cos(y)$, and advection coefficients $\beta_i=0.001$, for $i=\overline{1,3}$.}	\label{RDE-energy-d1_0_1_d2_0_002_d3_0_001-r-var}
+\end{figure}
+\clearpage
+\begin{comment}
+	\begin{figure}[H]
+		\centering
+		\subfloat[]{\includegraphics[scale=.50]{p1.eps}}
+		\subfloat[]{\includegraphics[scale=.50]{p5.eps}}\\[2ex]
+
+	
+	%\clearpage
+	%\newpage
+\end{comment}
+\section{Conclusion}\label{conclusion}
+We introduced a system of nonlinear coupled partial differential equations in this chapter to represent the dynamics of a $N$-species reaction-diffusion-advection model with harvesting and/or stocking effects. We proposed two fully discrete decoupled stable methods for numerical computation. We established that the first scheme is first-order correct in time and second-order correct in space. At each time step, the linearized decoupling methods are efficient and can compute the solution for each species concurrently. This can significantly reduce computing time when simulating large-scale computationally expensive complicated challenges.  
+Numerical illustrations demonstrate
+\begin{itemize}
+	\item [(a)] if the harvesting rate increases, then the population density will decrease and the species with a higher harvesting rate will extinct; 
+	\item[(b)] for space-dependent carrying capacity, there is a periodic behavior in the solution; 
+	\item[(c)] with the absence of harvesting effect and a constant advection rate, the species with a higher diffusion rate will extinct; 
+	\item[(d)] for different advection rates, there exists a coexistence among three species with the absence of harvesting effect and constant diffusion rate; 
+	\item[(e)] a strong coexistence is observed for space-dependent intrinsic growth rates; 
+	\item[(f)] if there is no harvesting effect of two species where one species is harvested, then the density of harvest-free species will be the same and the density of harvested species will be reduced; 
+	\item[(g)] the higher the harvesting rate, the lower the density, and 
+	\item[(h)] if the harvesting rate of one species surpass the intrinsic growth rate, then it will totally vanish and the other two will coexist.
+\end{itemize}
+%%%%%%%%%%%%%%%%%    End Chapter   %%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+
+%Numerical experiments exhibit (a) if the diffusion rate increases and the advection rate decreases, then the population density decreases and faster the process of extinction, (b) if the harvesting coefficient of a species increases, its density decreases, and other species get benefit in the competition, and (c) if the stocking effect of a species intensify, the population density increases and tends to win over the other species in the competition, that is, the survival period of the species increases. For a particular competition model, a set of values of the harvesting or stocking coefficients can be found for which co-existence of all species will be ensured.% The harvesting and/or stocking coefficient can be a useful as a control in the population dynamics with limited natural resources. In the future, we plan to explore the problem of uncertainty quantification and model parameter estimation for practical applications.
+% \textcolor{magenta}{Harvesting or stocking modeling based on convection diffusion reaction parabolic problem \cite{chandru2018numerical} also could be a new research avenue.}
+%As a future research, we will propose, analyze and test an efficient decoupled algorithm for this $N$-species competition model following the works in \cite{MR17,mohebujjaman2022efficient} so that at each time-step each species solver shares a common system matrix which will further save computer memory and assembling time of system matrix.
+%\newpage
+%\textbf{Acknowledgments.} The first author is partially supported by National Science Foundation grant DMS-2213274, and University Research grant, Texas A\&M International University.
+%
+%\bibliographystyle{plain}
+%\bibliography{Bib_Harvesting}
+\begin{thebibliography}{100}
+	\bibitem{clark1974mathematical}Clark, C. W. (1974). Mathematical bioeconomics. In Mathematical Problems in Biology: Victoria Conference (pp. 29-45). Springer Berlin Heidelberg.
+	
+	\bibitem{dai1998coexistence}Dai, G., \& Tang, M. (1998). Coexistence region and global dynamics of a harvested predator-prey system. SIAM Journal on Applied Mathematics, 58(1), 193-210.
+	
+	\bibitem{li2011optimal}Li, W., Wang, K., \& Su, H. (2011). Optimal harvesting policy for stochastic logistic population model. Applied Mathematics and Computation, 218(1), 157-162.
+	
+	\bibitem{otunuga2021time}Otunuga, O. M. (2021). Time-dependent probability density function for general stochastic logistic population model with harvesting effort. Physica A: Statistical Mechanics and its Applications, 573, 125931.
+	
+\bibitem{yang2019optimal}Yang, B., Cai, Y., Wang, K., \& Wang, W. (2019). Optimal harvesting policy of logistic population model in a randomly fluctuating environment. Physica A: Statistical Mechanics and Its Applications, 526, 120817.
+
+	\bibitem{zhang2003optimal}Zhang, X., Shuai, Z., \& Wang, K. (2003). Optimal impulsive harvesting policy for single population. Nonlinear Analysis: Real World Applications, 4(4), 639-651.
+	
+	\bibitem{schons2021rotatinuous} Schons, R. M. T., Laca, E. A., Savian, J. V., Mezzalira, J. C., Schneider, E. A. N, Caetano, L. A. M., Zubieta, A. S., Benvenutti, M. A. \& Carvalho, P. C. de. F. (2021).
+	`Rotatinuous' stocking: An innovation in grazing management to foster both herbage and animal production, Livestock Science, 245, 104406.
+	
+	\bibitem{brissette1996effects} Brissette, J. C. (1996). Effects of intensity and frequency of harvesting on abundance, stocking and composition of natural regeneration in the Acadian Forest of eastern North America. Silva Fennica 30, 301-314.
+	
+	\bibitem{forsberg1996optimal} Forsberg, O. I. (1996). Optimal stocking and harvesting of size-structured farmed fish: a multi-period linear programming approach. Mathematics and Computers in Simulation, 42(2-3), 299-305.
+	
+	\bibitem{lorenzen2005population} Lorenzen, K. (2005). Population dynamics and potential of fisheries stock enhancement: practical theory for assessment and policy analysis. Philosophical Transactions of the Royal Society B: Biological Sciences, 360(1453), 171-189.
+	
+	\bibitem{shaner1996assessment} Shaner, B. L., Maceina, M. J., McHugh, J. J., \& Cook, S. F. (1996). Assessment of catfish stocking in public fishing lakes in Alabama. North American Journal of Fisheries Management, 16(4), 880-887.
+	
+	\bibitem{myerscough1992analysis} Myerscough, M. R., Gray, B. F., Hogarth, W. L., \& Norbury, J. (1992). An analysis of an ordinary differential equation model for a two-species predator-prey system with harvesting and stocking. Journal of Mathematical Biology, 30, 389-411.
+	
+	\bibitem{brauer1982coexistence} Brauer, F., \& Soudack, A. C. (1982). Coexistence properties of some predator-prey systems under constant rate harvesting and stocking. Journal of Mathematical Biology, 12, 101-114.
+	
+	\bibitem{brauer1982constant} Brauer, F., \& Soudack, A. C. (1982). On constant effort harvesting and stocking in a class of predator-prey systems. Journal of Theoretical Biology, 95(2), 247-252.
+	
+	\bibitem{liu2007impulsive} Liu, Z., \& Tan, R. (2007). Impulsive harvesting and stocking in a Monod–Haldane functional response predator–prey system. Chaos, Solitons \& Fractals, 34(2), 454-464.
+	
+	\bibitem{hening2022effects} Hening, A., Tran, K. Q., \& Ungureanu, S. C. (2022). The effects of random and seasonal environmental fluctuations on optimal harvesting and stocking. Journal of Mathematical Biology, 84(6), 41.
+	
+	\bibitem{liu2010coexistence} Liu, Z., Wu, J., \& Cheke, R. A. (2010). Coexistence and partial extinction in a delay competitive system subject to impulsive harvesting and stocking. IMA Journal of Applied Mathematics, 75(5), 777-795.
+	
+	\bibitem{dong2006extinction} Dong, L., Chen, L., \& Sun, L. (2006). Extinction and permanence of the predator–prey system with stocking of prey and harvesting of predator impulsively. Mathematical methods in the applied sciences, 29(4), 415-425.
+	
+	\bibitem{jiao2008delayed} Jiao, J., Pang, G., Chen, L., \& Luo, G. (2008). A delayed stage-structured predator–prey model with impulsive stocking on prey and continuous harvesting on predator. Applied Mathematics and Computation, 195(1), 316-325.
+	
+	\bibitem{wang2014permanence} Wang, X., \& Huang, C. (2014). Permanence of a stage-structured predator–prey system with impulsive stocking prey and harvesting predator. Applied Mathematics and Computation, 235, 32-42.
+	
+	\bibitem{jiao2008permanence} Jiao, J. J., Chen, L. S., Nieto, J. J., \& Angela, T. (2008). Permanence and global attractivity of stage-structured predator-prey model with continuous harvesting on predator and impulsive stocking on prey. Applied Mathematics and Mechanics, 29(5), 653-663.
+	
+	\bibitem{ruan2023imperfect} Ruan, S., \& Xiao, D. (2023). Imperfect and Bogdanov–Takens bifurcations in biological models: from harvesting of species to isolation of infectives. Journal of mathematical biology, 87(1), 17.
+	
+	\bibitem{selgrade1998reversing} Selgrade, J. F., \& Roberds, J. H. (1998). Reversing period-doubling bifurcations in models of population interactions using constant stocking or harvesting. Canad. Appl. Math. Quart, 6, 207-231.
+	
+	\bibitem{alsharawi2009coexistence} AlSharawi, Z., \& Rhouma, M. (2009). Coexistence and extinction in a competitive exclusion Leslie/Gower model with harvesting and stocking. Journal of Difference Equations and Applications, 15(11-12), 1031-1053.
+	
+	\bibitem{selgrade1998using} Selgrade, J. F. (1998). Using stocking or harvesting to reverse period-doubling bifurcations in discrete population models. Journal of Difference Equations and Applications, 4(2), 163-183.
+	
+	
+	
+	
+	\bibitem{braverman2009optimal} Braverman, E., \& Braverman, L. (2009). Optimal harvesting of diffusive models in a nonhomogeneous environment. Nonlinear analysis: theory, methods \& applications, 71(12), e2173-e2181.
+	
+	\bibitem{korobenko2013persistence}Korobenko, L., Kamrujjaman, M., \& Braverman, E. (2013). Persistence and extinction in spatial models with a carrying capacity driven diffusion and harvesting. Journal of Mathematical Analysis and Applications, 399(1), 352-368.
+	
+	\bibitem{kamrujjaman2022spatio}Kamrujjaman, M., Keya, K. N., Bulut, U., Islam, M. R., \& Mohebujjaman, M. (2023). Spatio-temporal solutions of a diffusive directed dynamics model with harvesting. Journal of Applied Mathematics and Computing, 69(1), 603-630.
+	
+	\bibitem{adan2023interplay}Adan, M. M. I. Y., Kamrujjaman, M., Molla, M. M., Mohebujjaman, M., \& Buenrostro, C. (2023). Interplay of harvesting and the growth rate for spatially diversified populations and the testing of a decoupled scheme. Mathematical Biosciences and Engineering, 20(4), 6374-6399.
+	
+	\bibitem{mohebujjaman2024decoupled} Mohebujjaman, M., Buenrostro, C., Kamrujjaman, M., \& Khan, T. (2024). Decoupled algorithms for non-linearly coupled reaction--diffusion competition model with harvesting and stocking. Journal of Computational and Applied Mathematics, 436, 115421.
+	
+	
+	\bibitem{braverman2016competitive} Braverman, E., \& Kamrujjaman, M. (2016). Competitive–cooperative models with various diffusion strategies. Computers \& Mathematics with Applications, 72(3), 653-662.
+	
+	
+
+	
+\bibitem{roques2007population}Roques, L., \& Chekroun, M. D. (2007). On population resilience to external perturbations. SIAM Journal on Applied Mathematics, 68(1), 133-153.
+	
+		\bibitem{clayton1997bringing}Clayton, L., Keeling, M., \& Milner-Gulland, E. J. (1997). Bringing home the bacon: a spatial model of wild pig hunting in Sulawesi, Indonesia. Ecological Applications, 7(2), 642-652.
+	
+		\bibitem{leung1995optimal}Leung, A. W. (1995). Optimal harvesting-coefficient control of steady-state prey-predator diffusive Volterra-Lotka systems. Applied Mathematics and Optimization, 31, 219-241.
+	
+	\bibitem{liu2016optimal} Liu, M., \& Bai, C. (2016). Optimal harvesting of a stochastic mutualism model with Lévy jumps. Applied Mathematics and Computation, 276, 301-309.
+	
+	\bibitem{stigter2004optimal}Stigter, J. D., \& Van Langevelde, F. (2004). Optimal harvesting in a two-species model under critical depensation: the case of optimal harvesting in semi-arid grazing systems. Ecological Modelling, 179(2), 153-161.
+	
+		
+		
+	
+	\bibitem{braverman2019interplay}Braverman, E., \& Ilmer, I. (2019). On the interplay of harvesting and various diffusion strategies for spatially heterogeneous populations. Journal of Theoretical Biology, 466, 106-118.
+	
+	\bibitem{wong2009analysis}Wong, J. C. F. (2009). The analysis of a finite element method for the three-species Lotka–Volterra competition-diffusion with Dirichlet boundary conditions. Journal of computational and applied mathematics, 223(1), 421-437.
+	
+		\bibitem{ainseba2008reaction}Ainseba, B. E., Bendahmane, M., \& Noussair, A. (2008). A reaction–diffusion system modeling predator–prey with prey-taxis. Nonlinear Analysis: Real World Applications, 9(5), 2086-2105.
+		
+		
+		
+		\bibitem{Zahan2022Mathmatical}Zahan, I., Kamrujjaman, M., \& Tanveer, S. (2022). Mathematical Study of a Resource-Based Diffusion Model with Gilpin–Ayala Growth and Harvesting. Bulletin of Mathematical Biology, 84(10), 120.
+		
+	\bibitem{BS08}Brenner, S. C., Scott, L. R., \& Scott, L. R. (2008). The mathematical theory of finite element methods (Vol. 3, pp. 263-291). New York: Springer.
+	
+		\bibitem{linke2019pressure}Linke, A., \& Rebholz, L. G. (2019). Pressure-induced locking in mixed methods for time-dependent (Navier–) Stokes equations. Journal of Computational Physics, 388, 350-356.	
+		
+	\bibitem{e3} Kamrujjaman, M., Zahan, I., Keya, K. N., \& Hassan, M. N. (2022). Interplay of resource mappings and evolutionary diffusion: Competitive exclusion and coexistence analysis. Partial Differential Equations in Applied Mathematics, 5, 100398.
+	%Korobenko, L., \& Braverman, E. (2012). On logistic models with a carrying capacity dependent diffusion: stability of equilibria and coexistence with a regularly diffusing population. Nonlinear Analysis: Real World Applications, 13(6), 2648-2658.
+	%	\bibitem{}Braverman, E., Kamrujjaman, M., \& Korobenko, L. (2015). Competitive spatially distributed population dynamics models: does diversity in diffusion strategies promote coexistence?. Mathematical biosciences, 264, 63-73.	
+	
+	\bibitem{book}Pao, C. V. (2012). Nonlinear parabolic and elliptic equations. Springer Science \& Business Media.	
+	
+	
+	
+	\bibitem{linke2017connection} Linke, A., Neilan, M., Rebholz, L. G., \& Wilson, N. E. (2017). A connection between coupled and penalty projection timestepping schemes with FE spatial discretization for the Navier–Stokes equations. Journal of Numerical Mathematics, 25(4), 229-248.
+	
+	
+	
+	
+	
+	
+	
+	
+	
+%======================================	
+	
+
+	
+	\bibitem{AKMR15}Akbas, M., Kaya, S., Mohebujjaman, M., \& Rebholz, L. (2016). Numerical analysis and testing of a fully discrete, decoupled penalty-projection algorithm for MHD in Elsässer variable. Int. J. Numer. Anal. Model, 13(1), 90-113.
+	
+
+
+	%	\bibitem{}Chandru, M., Prabha, T., Das, P., \& Shanthi, V. (2019). A numerical method for solving boundary and interior layers dominated parabolic problems with discontinuous convection coefficient and source terms. Differential Equations and Dynamical Systems, 27, 91-112.
+	
+	
+
+	%	\bibitem{}Davis, T. A. (2004). Algorithm 832: UMFPACK V4. 3---an unsymmetric-pattern multifrontal method. ACM Transactions on Mathematical Software (TOMS), 30(2), 196-199.
+	%	
+	%	\bibitem{}Hecht, F. (2012). New development in FreeFem++. Journal of numerical mathematics, 20(3-4), 251-266.
+	
+	\bibitem{HMR17}Heister, T., Mohebujjaman, M., \& Rebholz, L. G. (2017). Decoupled, unconditionally stable, higher order discretizations for MHD flow simulation. Journal of Scientific Computing, 71, 21-43.
+	
+	%\bibitem{}Heywood, J. G., Rannacher, R., \& Turek, S. (1996). Artificial boundaries and flux and pressure conditions for the incompressible Navier–Stokes equations. International Journal for numerical methods in fluids, 22(5), 325-352.
+	
+	
+	
+	
+
+	\bibitem{mohebujjaman2022efficient}Mohebujjaman, M., Wang, H., Rebholz, L. G., \& Al Mahbub, M. A. (2022). An efficient algorithm for parameterized magnetohydrodynamic flow ensembles simulation. Computers \& Mathematics with Applications, 112, 167-180.
+	
+	\bibitem{Robinson2016Three-Dimensional}Robinson, J. C., Rodrigo, J. L., \& Sadowski, W. (2016). The three-dimensional Navier–Stokes equations: Classical theory (Vol. 157). Cambridge university press.
+	
+	\bibitem{hecht2012new} Hecht, F. (2012). New development in FreeFem++. Journal of numerical mathematics, 20(3-4), 251-266.
+	
+	\bibitem{davis2004algorithm} Davis, T. A. (2004). Algorithm 832: UMFPACK V4. 3---an unsymmetric-pattern multifrontal method. ACM Transactions on Mathematical Software (TOMS), 30(2), 196-199.
+	
+\end{thebibliography}
+
+\begin{comment}
+	\newpage
+	\section*{Appendix} \label{appendix} Here we
+	find the restriction on the time-step size to have the stability of the Algorithm \ref{Algn1}. We consider the following linear system:
+	\begin{align}
+		a(u_{i,h}^{n+1},v_{h})=F\left(v_{h}\right),\hspace{1mm}\forall v_{h}\in X_h,\hspace{1mm}i=1,2,\cdots,N,\label{linear-system}
+	\end{align}
+	where the linear form
+	\begin{align}
+		F\left(v_{h}\right):=\frac{1}{\Delta t}\left(u_{i,h}^{n},v_{h}\right)+\left(f_i(t^{n+1}),v_{h}\right),
+	\end{align}
+	and  the  bilinear form
+	
+	\begin{align}
+		a\left(u_{i,h}^{n+1},v_{h}\right):&=\frac{1}{\Delta t}\left(u_{i,h}^{n+1},v_{h}\right)+\mathcal{D}_i\left(\nabla u_{i,h}^{n+1},\nabla v_{h}\right)-\beta_i\left( u_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla v_{h}\right)-\nonumber\\
+		&(1-\gamma_i)\left(r_i(t^{n+1})u_{i,h}^{n+1},v_{h}\right)-\left(\frac{r_i(t^{n+1})u_{i,h}^{n+1}}{K(t^{n+1})}\sum\limits_{j=1}^Nu_{j,h}^n,v_{h}
+		\right).\label{bilinear-form}
+	\end{align}
+	Now, substitute $v_{h}=u_{i,h}^{n+1}$ in \eqref{bilinear-form} to give
+	\begin{align}
+		a&\left(u_{i,h}^{n+1},u_{i,h}^{n+1}\right)=\frac{1}{\Delta t}\|u_{i,h}^{n+1}\|^2+\mathcal{D}_i\|\nabla u_{i,h}^{n+1}\|^2-\beta_i\left( u_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla v_{h}\right)-(1-\gamma_i)\left(r_i(t^{n+1})u_{i,h}^{n+1},u_{i,h}^{n+1}\right)\nonumber\\
+		&-\left(\frac{r_i(t^{n+1})u_{i,h}^{n+1}}{K(t^{n+1})}\sum\limits_{j=1}^Nu_{j,h}^n,u_{i,h}^{n+1}
+		\right)\nonumber\\
+		&\ge \frac{1}{\Delta t}\|u_{i,h}^{n+1}\|^2+\mathcal{D}_i\|\nabla u_{i,h}^{n+1}\|^2-C\|\nabla u_{i,h}^{n+1}\|^2\|K(t^{n+1})\|_{H^2(\Omega)^d}-|1-\gamma_i|\|r_i(t^{n+1})\|_{\infty}\|u_{i,h}^{n+1}\|^2-\nonumber\\
+		&~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\frac{C\|r_i(t^{n+1})\|_{\infty}}{\inf\limits_\Omega\|K(t^{n+1})\|}\|u_{i,h}^{n+1}\|^2.
+	\end{align}
+	%For the first term on the right-hand-side of \eqref{pol-new}, we use H\"{o}lder's inequality, Sobolev embedding theorem, and Poincar\'e inequalities, to find the following estimate
+	%\begin{align*}
+	%	\left(u_{i,h}^{n+1}\nabla K(t^{n+1}),\nabla u_{i,h}^{n+1}\right)&\le\|u_{i,h}^{n+1}\|_{L^3}\|\nabla K(t^{n+1})\|_{L^6}\|\nabla u_{i,h}^{n+1}\|\\&\le C\|u_{i,h}^{n+1}\|^{\frac12}\|\nabla u_{i,h}^{n+1}\|^{\frac12} \| K(t^{n+1})\|_{H^2(\Omega)}\|\nabla u_{i,h}^{n+1}\|\\&\le C\|\nabla u_{i,h}^{n+1}\|^2\|K(t^{n+1})\|_{H^2(\Omega)^d}.
+	%\end{align*}
+	The last term in the above inequality is derived as the lower bound subject to the Lemma \ref{assumption-1}. Rearranging
+	\begin{align}
+		&a\left(u_{i,h}^{n+1},u_{i,h}^{n+1}\right)\ge\left(\frac{1}{\Delta t}-|1-\gamma_i|\|r_i\|_{L^\infty\big(0,T;L^\infty(\Omega)^d\big)}-\frac{C\|r_i\|_{L^\infty\big(0,T;L^\infty(\Omega)^d\big)}}{\inf\limits_{(t,{\bf x})\in (0,T]\times\Omega}|K|}\right)\|u_{i,h}^{n+1}\|^2+\nonumber\\
+		&~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\mathcal{D}_i\|\nabla u_{i,h}^{n+1}\|^2-C\|\nabla u_{i,h}^{n+1}\|^2\|K(t^{n+1})\|_{H^2(\Omega)^d}.
+	\end{align}
+	To have the coercivity condition, we must have
+	\begin{align*}
+		\frac{1}{\Delta t}-|1-\gamma_i|\|r_i\|_{\infty,\infty}-\frac{C\|r_i\|_{\infty,\infty}}{K_{\min}}\ge 0,
+	\end{align*}
+	which gives the following restriction on the time-step size
+	\begin{align}
+		\Delta t\le\frac{K_{\min}}{|1-\gamma_i|\|r_i\|_{\infty,\infty}K_{\min}+C\|r_i\|_{\infty,\infty}}.\label{time-step-restriction}
+	\end{align}
+	In a similar approach, we can find the time-step restriction on the stability of the Algorithm \ref{Algn2}.
+\end{comment}
+\end{document}
